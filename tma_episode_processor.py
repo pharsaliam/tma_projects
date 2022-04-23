@@ -1,8 +1,6 @@
 import itertools
 import pprint
-from urllib.request import Request, urlopen
-
-from bs4 import BeautifulSoup
+import pickle
 
 from utils import create_logger
 
@@ -26,9 +24,8 @@ CHARACTER_LIST = [
 
 class TMAEpisode:
     def __init__(self, episode_number, logging_level='INFO'):
-        self.episode_number = episode_number
+        self.number = episode_number
         self.logger = create_logger('tma_ep', logging_level=logging_level)
-        self.summary = None
         self.transcript = None
         self.characters_in_scenes = None
         self.nodes = None
@@ -36,27 +33,16 @@ class TMAEpisode:
 
     def __call__(self):
         self.logger.info('Extracting summary and transcript')
-        self.extract_summary_and_transcript()
+        self.extract_transcript()
         self.logger.info('Extracting characters in scenes')
         self.extract_characters_in_scenes()
         self.logger.info('Generating nodes and edges dict')
         self.generate_nodes_and_edge_dict()
 
-    def extract_summary_and_transcript(self):
-        episode_number_formatted = f'{self.episode_number:03}'
-        url = f'''
-            https://snarp.github.io/magnus_archives_transcripts/episode/{episode_number_formatted}.html
-        '''
-        req = Request(
-            url
-        )
-        html_page = urlopen(req)
-        soup = BeautifulSoup(html_page, "html.parser")
-        html_text = soup.get_text()
-        s_start = html_text.find('Summary') + len('Summary')
-        s_end = html_text.find('Warning')
-        self.summary = html_text[s_start:s_end].strip()
-        self.logger.debug(f'Summary of episode: {self.summary}')
+    def extract_transcript(self):
+        with open('episode_texts/tma_text_from_epub.pkl', 'rb') as f:
+            all_episode_texts = pickle.load(f)
+        html_text = all_episode_texts[self.number]
         tmarker = '[CLICK]'
         t_start = html_text.find(tmarker) + len(tmarker)
         t_end = html_text.rfind(tmarker)
