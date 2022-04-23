@@ -16,9 +16,11 @@ CHARACTER_LIST = [
     '\nMELANIE\n',
     '\nBASIRA\n',
     '\nDAISY\n',
-    '\nGETRUDE\n',
+    '\nGERTRUDE\n',
+    '\nGEORGIE\n',
     '\nMICHAEL\n',
     '\nHELEN\n',
+    '\nPETER\n',
 ]
 
 
