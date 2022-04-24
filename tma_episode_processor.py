@@ -67,6 +67,7 @@ class TMAEpisode:
             elif len(cs) > 2:
                 cs_combo = [i for i in itertools.combinations(cs, 2)]
                 for p in cs_combo:
+                    p = tuple(sorted(p))
                     self.update_individual_edge_dict(p)
         self.logger.debug(f'Nodes: {pprint.pformat(self.nodes)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
