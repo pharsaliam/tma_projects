@@ -8,6 +8,7 @@ from utils import create_logger
 CHARACTER_LIST = [
     '\nARCHIVIST\n',
     '\nELIAS\n',
+    '\nELIAS (JONAH)\n',
     '\nTIM\n',
     '\nMARTIN\n',
     '\nSASHA\n',
@@ -21,6 +22,10 @@ CHARACTER_LIST = [
     '\nHELEN\n',
     '\nPETER\n',
 ]
+
+CHARACTER_CONSOLIDATION_DICT = {
+    '\nELIAS (JONAH)\n': '\nELIAS\n'
+}
 
 
 class TMAEpisode:
@@ -50,6 +55,8 @@ class TMAEpisode:
         self.transcript = html_text[t_start:t_end]
 
     def extract_characters_in_scenes(self):
+        for k, v in CHARACTER_CONSOLIDATION_DICT.items():
+            self.transcript = self.transcript.replace(k, v)
         scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*[\n]\[TAPE CLICKS ON.\]|\[CLICK\]\n\n\[CLICK\]', self.transcript)
         self.characters_in_scenes = [
             [c.strip().capitalize() for c in CHARACTER_LIST if c in scene] for
