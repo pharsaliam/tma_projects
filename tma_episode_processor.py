@@ -1,6 +1,7 @@
 import itertools
 import pprint
 import pickle
+import re
 
 from utils import create_logger
 
@@ -49,7 +50,7 @@ class TMAEpisode:
         self.transcript = html_text[t_start:t_end]
 
     def extract_characters_in_scenes(self):
-        scene_list = self.transcript.split('[CLICK]\n\n[CLICK]')
+        scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*[\n]\[TAPE CLICKS ON.\]|\[CLICK\]\n\n\[CLICK\]', self.transcript)
         self.characters_in_scenes = [
             [c.strip().capitalize() for c in CHARACTER_LIST if c in scene] for
             scene in scene_list
