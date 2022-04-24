@@ -83,6 +83,8 @@ class TMAEpisode:
     def update_individual_edge_dict(self, pair):
         if pair not in self.edges_dict:
             self.edges_dict[pair] = {'weight': 1}
-        else:
-            self.edges_dict[pair]['weight'] += 1
+        # Uncomment next two lines if we ever want to count
+        # characters who interact in multiple scenes per episode multiple times
+        # else:
+        #     self.edges_dict[pair]['weight'] += 1
 
