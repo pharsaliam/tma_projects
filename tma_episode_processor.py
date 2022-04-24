@@ -59,7 +59,7 @@ class TMAEpisode:
             self.transcript = self.transcript.replace(k, v)
         scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*[\n]\[TAPE CLICKS ON.\]|\[CLICK\]\n\n\[CLICK\]', self.transcript)
         self.characters_in_scenes = [
-            [c.strip().capitalize() for c in CHARACTER_LIST if c in scene] for
+            [c.strip() for c in CHARACTER_LIST if c in scene] for
             scene in scene_list
         ]
         self.logger.debug(f'Characters in scenes: {pprint.pformat(self.characters_in_scenes)}')
