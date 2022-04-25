@@ -47,7 +47,7 @@ def generate_individual_episode_dict(start_episode, end_episode):
         logger.info(f'Episode {e} created')
         episode()
         individual_episode_dict[e] = {
-            'nodes_dict': {n: {'size': 1} for n in episode.nodes},
+            'nodes_dict': episode.nodes_dict,
             'edges_dict': episode.edges_dict
         }
         for edge in episode.edges_dict:

@@ -34,7 +34,7 @@ class TMAEpisode:
         self.logger = create_logger('tma_ep', logging_level=logging_level)
         self.transcript = None
         self.characters_in_scenes = None
-        self.nodes = None
+        self.nodes_dict = None
         self.edges_dict = None
 
     def __call__(self):
@@ -42,8 +42,8 @@ class TMAEpisode:
         self.extract_transcript()
         self.logger.info('Extracting characters in scenes')
         self.extract_characters_in_scenes()
-        self.logger.info('Generating nodes and edges dict')
-        self.generate_nodes_and_edge_dict()
+        self.logger.info('Generating nodes dict and edges dict')
+        self.generate_nodes_and_edges_dict()
 
     def extract_transcript(self):
         with open('episode_texts/tma_text_from_epub.pkl', 'rb') as f:
@@ -64,9 +64,10 @@ class TMAEpisode:
         ]
         self.logger.debug(f'Characters in scenes: {pprint.pformat(self.characters_in_scenes)}')
 
-    def generate_nodes_and_edge_dict(self):
-        self.nodes = set(
-            [char for char_list in self.characters_in_scenes for char in char_list])
+    def generate_nodes_and_edges_dict(self):
+        self.nodes_dict = {
+            char: {'size': 1} for char_list in self.characters_in_scenes for char in char_list
+        }
         self.edges_dict = {}
         for cs in self.characters_in_scenes:
             if len(cs) == 2:
@@ -77,7 +78,7 @@ class TMAEpisode:
                 for p in cs_combo:
                     p = tuple(sorted(p))
                     self.update_individual_edge_dict(p)
-        self.logger.debug(f'Nodes: {pprint.pformat(self.nodes)}')
+        self.logger.debug(f'Nodes: {pprint.pformat(self.nodes_dict)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
 
     def update_individual_edge_dict(self, pair):
