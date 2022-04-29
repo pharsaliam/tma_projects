@@ -33,13 +33,15 @@ class TMAEpisode:
         self.number = episode_number
         self.logger = create_logger('tma_ep', logging_level=logging_level)
         self.transcript = None
+        self.lines = None
         self.characters_in_scenes = None
         self.nodes_dict = None
         self.edges_dict = None
 
     def __call__(self):
-        self.logger.info(f'{self.number} Extracting summary and transcript')
+        self.logger.info(f'{self.number} Extracting transcript')
         self.extract_transcript()
+        self.clean_up_character_names()
         self.logger.info(f'{self.number} Extracting characters in scenes')
         self.extract_characters_in_scenes()
         self.logger.info(f'{self.number} Generating nodes dict and edges dict')
@@ -55,9 +57,20 @@ class TMAEpisode:
         t_end_l = [html_text.rfind(tmarker1), html_text.rfind(tmarker2)]
         t_start_l = [i for i in t_start_l if i > 0]
         t_end_l = [i for i in t_end_l if i > 0]
-        t_start = min(t_start_l)
-        t_end = min(t_end_l)
+        t_start = min(t_start_l + [0])
+        t_end = max(t_end_l + [-1])
         self.transcript = html_text[t_start:t_end]
+
+    def clean_up_character_names(self):
+        lines = self.transcript.split('\n')
+        new_lines = []
+        for line in lines:
+            if re.match('^[A-Z]* \([A-Z]*\)$', line):
+                split = line.split()
+                new_lines.append(split[0])
+            else:
+                new_lines.append(line)
+        self.transcript = '\n'.join(new_lines)
 
     def extract_characters_in_scenes(self):
         for k, v in CHARACTER_CONSOLIDATION_DICT.items():
