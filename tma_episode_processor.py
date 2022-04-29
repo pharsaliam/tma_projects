@@ -38,26 +38,31 @@ class TMAEpisode:
         self.edges_dict = None
 
     def __call__(self):
-        self.logger.info('Extracting summary and transcript')
+        self.logger.info(f'{self.number} Extracting summary and transcript')
         self.extract_transcript()
-        self.logger.info('Extracting characters in scenes')
+        self.logger.info(f'{self.number} Extracting characters in scenes')
         self.extract_characters_in_scenes()
-        self.logger.info('Generating nodes dict and edges dict')
+        self.logger.info(f'{self.number} Generating nodes dict and edges dict')
         self.generate_nodes_and_edges_dict()
 
     def extract_transcript(self):
         with open('episode_texts/tma_text_from_epub.pkl', 'rb') as f:
             all_episode_texts = pickle.load(f)
         html_text = all_episode_texts[self.number]
-        tmarker = '[CLICK]'
-        t_start = html_text.find(tmarker) + len(tmarker)
-        t_end = html_text.rfind(tmarker)
+        tmarker1 = '[CLICK]'
+        tmarker2 = '[TAPE CLICKS'
+        t_start_l = [html_text.find(tmarker1), html_text.find(tmarker2)]
+        t_end_l = [html_text.rfind(tmarker1), html_text.rfind(tmarker2)]
+        t_start_l = [i for i in t_start_l if i > 0]
+        t_end_l = [i for i in t_end_l if i > 0]
+        t_start = min(t_start_l)
+        t_end = min(t_end_l)
         self.transcript = html_text[t_start:t_end]
 
     def extract_characters_in_scenes(self):
         for k, v in CHARACTER_CONSOLIDATION_DICT.items():
             self.transcript = self.transcript.replace(k, v)
-        scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*[\n]\[TAPE CLICKS ON.\]|\[CLICK\]\n\n\[CLICK\]', self.transcript)
+        scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
         self.characters_in_scenes = [
             [c.strip() for c in CHARACTER_LIST if c in scene] for
             scene in scene_list
