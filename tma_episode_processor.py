@@ -24,7 +24,8 @@ CHARACTER_LIST = [
 ]
 
 CHARACTER_CONSOLIDATION_DICT = {
-    '\nELIAS (JONAH)\n': '\nELIAS\n'
+    '\nMAGNUS\n': '\nELIAS\n',
+    '\nJOHN\n': '\nARCHIVIST\n'
 }
 
 
