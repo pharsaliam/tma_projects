@@ -6,24 +6,6 @@ from collections import defaultdict
 
 from utils import create_logger
 
-CHARACTER_LIST = [
-    '\nARCHIVIST\n',
-    '\nELIAS\n',
-    '\nELIAS (JONAH)\n',
-    '\nTIM\n',
-    '\nMARTIN\n',
-    '\nSASHA\n',
-    '\nNOT!SASHA\n',
-    '\nMELANIE\n',
-    '\nBASIRA\n',
-    '\nDAISY\n',
-    '\nGERTRUDE\n',
-    '\nGEORGIE\n',
-    '\nMICHAEL\n',
-    '\nHELEN\n',
-    '\nPETER\n',
-]
-
 CHARACTER_CONSOLIDATION_DICT = {
     '\nMAGNUS\n': '\nELIAS\n',
     '\nJOHN\n': '\nARCHIVIST\n'
@@ -35,9 +17,7 @@ class TMAEpisode:
         self.number = episode_number
         self.logger = create_logger('tma_ep', logging_level=logging_level)
         self.transcript = None
-        # self.lines = None
         self.character_info_in_scenes = {}
-        # self.characters_in_scenes = None
         self.nodes_dict = {}
         self.edges_dict = {}
 
@@ -139,28 +119,11 @@ class TMAEpisode:
     def character_dict_default_value():
         return {'word_count': 0, 'appearances': []}
 
-    # def extract_characters_in_scenes(self):
-    #     for k, v in CHARACTER_CONSOLIDATION_DICT.items():
-    #         self.transcript = self.transcript.replace(k, v)
-    #     scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
-    #     self.characters_in_scenes = [
-    #         [c.strip() for c in CHARACTER_LIST if c in scene] for
-    #         scene in scene_list
-    #     ]
-    #     self.logger.debug(f'Characters in scenes: {pprint.pformat(self.characters_in_scenes)}')
-
     def generate_nodes_and_edges_dict(self):
-        # self.nodes_dict = {}
-        # self.edges_dict = {}
         for scene_i, scene_info in self.character_info_in_scenes.items():
             characters_in_scene = [c for c in scene_info]
             for character in characters_in_scene:
                 self.update_individual_node_dict(character, scene_i)
-        # self.nodes_dict = {
-        #     char: {'size': 1} for char_list in self.characters_in_scenes for char in char_list
-        # }
-            print(f'{characters_in_scene=}')
-            # for cs in characters_in_scene:
             if len(characters_in_scene) == 2:
                 cs = tuple(sorted(characters_in_scene))
                 self.update_individual_edge_dict(cs, scene_i)
