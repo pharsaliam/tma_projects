@@ -1,5 +1,7 @@
 import logging
 
+DICT_TYPES = ['individual', 'cumulative', 'ea', 'na']
+
 
 def create_logger(logger_name, logging_level='INFO'):
     logger = logging.getLogger(logger_name)

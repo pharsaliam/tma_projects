@@ -2,7 +2,7 @@ import copy
 import argparse
 import pickle
 
-from utils import create_logger
+from utils import create_logger, DICT_TYPES
 from tma_episode_processor import TMAEpisode
 
 parser = argparse.ArgumentParser()
@@ -42,6 +42,7 @@ def generate_individual_episode_dict(start_episode, end_episode):
     logger.debug(f'{list_of_episodes=}')
     individual_episode_dict = {}
     edge_appearance_dict = {}
+    node_appearance_dict = {}
     for e in list_of_episodes:
         episode = TMAEpisode(e, logging_level=args.logging_level)
         logger.info(f'Episode {e} created')
@@ -50,12 +51,18 @@ def generate_individual_episode_dict(start_episode, end_episode):
             'nodes_dict': episode.nodes_dict,
             'edges_dict': episode.edges_dict
         }
+        # TODO Consolidate this into a function
         for edge, edge_attributes in episode.edges_dict.items():
             if edge in edge_appearance_dict:
-                edge_appearance_dict[edge].append((episode.number, edge_attributes['weight']))
+                edge_appearance_dict[edge][episode.number] = edge_attributes
             else:
-                edge_appearance_dict[edge] = [(episode.number, edge_attributes['weight'])]
-    return individual_episode_dict, edge_appearance_dict
+                edge_appearance_dict[edge] = {episode.number: edge_attributes}
+        for node, node_attributes in episode.nodes_dict.items():
+            if node in node_appearance_dict:
+                node_appearance_dict[node][episode.number] = node_attributes
+            else:
+                node_appearance_dict[node] = {episode.number: node_attributes}
+    return individual_episode_dict, edge_appearance_dict, node_appearance_dict
 
 
 def generate_cumulative_episode_dict(individual_episode_dict):
@@ -67,6 +74,7 @@ def generate_cumulative_episode_dict(individual_episode_dict):
             prev_nodes_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['nodes_dict'])
             current_nodes_dict = copy.deepcopy(individual_episode_dict[e]['nodes_dict'])
             for node, node_attributes in current_nodes_dict.items():
+                # TODO Consolidate this into a function
                 if node in prev_nodes_dict_update:
                     prev_nodes_dict_update[node]['size'] += node_attributes['size']
                 else:
@@ -75,6 +83,7 @@ def generate_cumulative_episode_dict(individual_episode_dict):
             prev_edges_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['edges_dict'])
             current_edges_dict = copy.deepcopy(individual_episode_dict[e]['edges_dict'])
             for edge, edge_attributes in current_edges_dict.items():
+                # TODO Consolidate this into a function
                 if edge in prev_edges_dict_update:
                     prev_edges_dict_update[edge]['weight'] += edge_attributes[
                         'weight']
@@ -93,23 +102,23 @@ def generate_cumulative_episode_dict(individual_episode_dict):
 
 
 def save_dict_as_pkl(episode_dict, dict_type, directory):
-    assert dict_type in ('individual', 'cumulative', 'ea')
-    with open(f'{directory}/{dict_type}.pkl', 'wb') as outfile:
+    assert dict_type in DICT_TYPES
+    location = f'{directory}/{dict_type}.pkl'
+    with open(location, 'wb') as outfile:
         pickle.dump(episode_dict, outfile)
+    logger.info(f'Saved {dict_type} in {location}')
     return None
 
 
 if __name__ == '__main__':
     logger.info(vars(args))
-    indi, ea = generate_individual_episode_dict(args.start_episode, args.end_episode)
-    logger.info('Finished generating individual episdoe dict and edge appearance dict')
+    indi, ea, na = generate_individual_episode_dict(args.start_episode, args.end_episode)
+    logger.info('Finished generating individual episode dict, node appearance dict, and edge appearance dict')
     logger.debug(f'Ending episode (i): {indi[args.end_episode]}')
     cumu = generate_cumulative_episode_dict(indi)
     logger.info('Finished generating cumulative episode dict')
     logger.debug(f'Ending episode (c): {cumu[args.end_episode]}')
+    save_dict_as_pkl(na, 'na', args.save_dir)
     save_dict_as_pkl(ea, 'ea', args.save_dir)
-    logger.info(f'Saved edge appearance dict')
     save_dict_as_pkl(indi, 'individual', args.save_dir)
-    logger.info(f'Saved individual episode dict')
     save_dict_as_pkl(cumu, 'cumulative', args.save_dir)
-    logger.info(f'Saved cumulative episode dict')
