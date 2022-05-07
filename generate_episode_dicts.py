@@ -50,11 +50,11 @@ def generate_individual_episode_dict(start_episode, end_episode):
             'nodes_dict': episode.nodes_dict,
             'edges_dict': episode.edges_dict
         }
-        for edge in episode.edges_dict:
+        for edge, edge_attributes in episode.edges_dict.items():
             if edge in edge_appearance_dict:
-                edge_appearance_dict[edge].append(episode.number)
+                edge_appearance_dict[edge].append((episode.number, edge_attributes['weight']))
             else:
-                edge_appearance_dict[edge] = [episode.number]
+                edge_appearance_dict[edge] = [(episode.number, edge_attributes['weight'])]
     return individual_episode_dict, edge_appearance_dict
 
 
@@ -64,13 +64,13 @@ def generate_cumulative_episode_dict(individual_episode_dict):
         prev_e = e - 1
         if prev_e in cumulative_episode_dict:
             # Update nodes
-            prev_nodes_update = copy.deepcopy(cumulative_episode_dict[prev_e]['nodes_dict'])
-            current_nodes = copy.deepcopy(individual_episode_dict[e]['nodes_dict'])
-            for n in current_nodes:
-                if n in prev_nodes_update:
-                    prev_nodes_update[n]['size'] += 1
+            prev_nodes_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['nodes_dict'])
+            current_nodes_dict = copy.deepcopy(individual_episode_dict[e]['nodes_dict'])
+            for node, node_attributes in current_nodes_dict.items():
+                if node in prev_nodes_dict_update:
+                    prev_nodes_dict_update[node]['size'] += node_attributes['size']
                 else:
-                    prev_nodes_update[n] = {'size': 1}
+                    prev_nodes_dict_update[node] = node_attributes
             # Update edges
             prev_edge_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['edges_dict'])
             current_edge_dict = copy.deepcopy(individual_episode_dict[e]['edges_dict'])
@@ -82,7 +82,7 @@ def generate_cumulative_episode_dict(individual_episode_dict):
                     prev_edge_dict_update[edge] = edge_attributes
             # Put it all together
             cumulative_episode_dict[e] = {
-                'nodes_dict': prev_nodes_update,
+                'nodes_dict': prev_nodes_dict_update,
                 'edges_dict': prev_edge_dict_update
             }
         else:

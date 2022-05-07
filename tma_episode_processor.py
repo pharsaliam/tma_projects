@@ -2,6 +2,7 @@ import itertools
 import pprint
 import pickle
 import re
+from collections import defaultdict
 
 from utils import create_logger
 
@@ -34,17 +35,18 @@ class TMAEpisode:
         self.number = episode_number
         self.logger = create_logger('tma_ep', logging_level=logging_level)
         self.transcript = None
-        self.lines = None
-        self.characters_in_scenes = None
-        self.nodes_dict = None
-        self.edges_dict = None
+        # self.lines = None
+        self.character_info_in_scenes = {}
+        # self.characters_in_scenes = None
+        self.nodes_dict = {}
+        self.edges_dict = {}
 
     def __call__(self):
         self.logger.info(f'{self.number} Extracting transcript')
         self.extract_transcript()
         self.clean_up_character_names()
-        self.logger.info(f'{self.number} Extracting characters in scenes')
-        self.extract_characters_in_scenes()
+        self.logger.info(f'{self.number} Extracting character info in scene')
+        self.extract_character_info_in_scenes()
         self.logger.info(f'{self.number} Generating nodes dict and edges dict')
         self.generate_nodes_and_edges_dict()
 
@@ -73,38 +75,126 @@ class TMAEpisode:
                 new_lines.append(line)
         self.transcript = '\n'.join(new_lines)
 
-    def extract_characters_in_scenes(self):
+    def extract_character_info_in_scenes(self):
         for k, v in CHARACTER_CONSOLIDATION_DICT.items():
             self.transcript = self.transcript.replace(k, v)
         scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
-        self.characters_in_scenes = [
-            [c.strip() for c in CHARACTER_LIST if c in scene] for
-            scene in scene_list
-        ]
-        self.logger.debug(f'Characters in scenes: {pprint.pformat(self.characters_in_scenes)}')
+        self.logger.debug(scene_list)
+        for i, scene in enumerate(scene_list):
+            self.character_info_in_scenes[i] = self.generate_character_info(
+                scene)
+
+    def generate_character_info(self, scene):
+        lines = scene.split('\n')
+        character_info = defaultdict(self.character_dict_default_value)
+        current_character = ''
+        counter = 0
+        appearances = []
+        for i, line in enumerate(lines):
+            self.logger.debug(f'On line {i}: {line}')
+            if re.match('^[A-Z]*$',
+                        line):  # if it matches what looks like a character name
+                self.logger.debug(
+                    f'This is a character name. The current character is {current_character}')
+                if line == current_character:
+                    self.logger.debug(f'This is the current character')
+                    appearances.append(i)
+                    self.logger.debug(appearances)
+                    pass
+                else:
+                    self.logger.debug(
+                        f'Time to change characters from {current_character} to {line}')
+                    # check to see if it already is in the word count dictionary
+                    if (current_character in character_info):
+                        self.logger.debug(
+                            f'{current_character} is alredy in the dict.')
+                        character_info[current_character][
+                            'word_count'] += counter
+                        character_info[current_character][
+                            'appearances'].extend(appearances)
+                        self.logger.debug(f'Updated dict: {character_info}')
+                    elif current_character:  # Don't add the placeholder empty string
+                        self.logger.debug(
+                            f'We need to add {current_character} to the dict')
+                        character_info[current_character][
+                            'word_count'] = counter
+                        character_info[current_character][
+                            'appearances'] = appearances
+                        self.logger.debug(f'Updated dict: {character_info}')
+                    current_character = line
+                    counter = 0
+                    appearances = [i]
+            elif re.match('\[[A-Za-z0-9 _.,!"\'\’]*\]',
+                          line):  # check if this is an action
+                self.logger.debug('This is an action sequence')
+                pass
+            else:
+                counter += len(line.split())
+            self.logger.debug(
+                f'This is a line of dialogue. Updated counter for {current_character}: {counter}')
+        self.logger.debug(' ')
+        return dict(character_info)
+
+    @staticmethod
+    def character_dict_default_value():
+        return {'word_count': 0, 'appearances': []}
+
+    # def extract_characters_in_scenes(self):
+    #     for k, v in CHARACTER_CONSOLIDATION_DICT.items():
+    #         self.transcript = self.transcript.replace(k, v)
+    #     scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
+    #     self.characters_in_scenes = [
+    #         [c.strip() for c in CHARACTER_LIST if c in scene] for
+    #         scene in scene_list
+    #     ]
+    #     self.logger.debug(f'Characters in scenes: {pprint.pformat(self.characters_in_scenes)}')
 
     def generate_nodes_and_edges_dict(self):
-        self.nodes_dict = {
-            char: {'size': 1} for char_list in self.characters_in_scenes for char in char_list
-        }
-        self.edges_dict = {}
-        for cs in self.characters_in_scenes:
-            if len(cs) == 2:
-                cs = tuple(sorted(cs))
-                self.update_individual_edge_dict(cs)
-            elif len(cs) > 2:
-                cs_combo = [i for i in itertools.combinations(cs, 2)]
+        # self.nodes_dict = {}
+        # self.edges_dict = {}
+        for scene_i, scene_info in self.character_info_in_scenes.items():
+            characters_in_scene = [c for c in scene_info]
+            for character in characters_in_scene:
+                self.update_individual_node_dict(character, scene_i)
+        # self.nodes_dict = {
+        #     char: {'size': 1} for char_list in self.characters_in_scenes for char in char_list
+        # }
+            print(f'{characters_in_scene=}')
+            # for cs in characters_in_scene:
+            if len(characters_in_scene) == 2:
+                cs = tuple(sorted(characters_in_scene))
+                self.update_individual_edge_dict(cs, scene_i)
+            elif len(characters_in_scene) > 2:
+                cs_combo = [i for i in itertools.combinations(characters_in_scene, 2)]
                 for p in cs_combo:
                     p = tuple(sorted(p))
-                    self.update_individual_edge_dict(p)
+                    self.update_individual_edge_dict(p, scene_i)
         self.logger.debug(f'Nodes: {pprint.pformat(self.nodes_dict)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
 
-    def update_individual_edge_dict(self, pair):
-        if pair not in self.edges_dict:
-            self.edges_dict[pair] = {'weight': 1}
-        # Uncomment next two lines if we ever want to count
-        # characters who interact in multiple scenes per episode multiple times
-        # else:
-        #     self.edges_dict[pair]['weight'] += 1
+    def update_individual_node_dict(self, character, scene_i):
+        if character not in self.nodes_dict:
+            self.nodes_dict[character] = {'size': self.character_info_in_scenes[scene_i][character]['word_count']}
+        else:
+            self.nodes_dict[character]['size'] += self.character_info_in_scenes[scene_i][character]['word_count']
 
+    def update_individual_edge_dict(self, pair, scene_i):
+        if pair not in self.edges_dict:
+            self.edges_dict[pair] = {'weight': self.get_edge_closeness_in_scene(scene_i, pair[0], pair[1])}
+        else:
+            self.edges_dict[pair]['weight'] += self.get_edge_closeness_in_scene(scene_i, pair[0], pair[1])
+
+    def get_edge_closeness_in_scene(self, scene_i, character_1, character_2, min_lines=5, min_closeness=0.005):
+        list_1 = self.character_info_in_scenes[scene_i][character_1]['appearances']
+        list_2 = self.character_info_in_scenes[scene_i][character_2]['appearances']
+        l_idx, r_idx, counter, curr_count = 0, 0, 0, 0
+        for num in list_1:
+            while l_idx < len(list_2) and num - list_2[l_idx] > min_lines:
+                l_idx += 1
+                curr_count -= 1
+            while r_idx < len(list_2) and list_2[r_idx] - num <= min_lines:
+                r_idx += 1
+                curr_count += 1
+            counter += curr_count
+        closeness = (counter * 2) + min_closeness
+        return closeness
