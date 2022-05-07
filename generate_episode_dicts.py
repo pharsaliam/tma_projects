@@ -72,18 +72,18 @@ def generate_cumulative_episode_dict(individual_episode_dict):
                 else:
                     prev_nodes_dict_update[node] = node_attributes
             # Update edges
-            prev_edge_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['edges_dict'])
-            current_edge_dict = copy.deepcopy(individual_episode_dict[e]['edges_dict'])
-            for edge, edge_attributes in current_edge_dict.items():
-                if edge in prev_edge_dict_update:
-                    prev_edge_dict_update[edge]['weight'] += edge_attributes[
+            prev_edges_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['edges_dict'])
+            current_edges_dict = copy.deepcopy(individual_episode_dict[e]['edges_dict'])
+            for edge, edge_attributes in current_edges_dict.items():
+                if edge in prev_edges_dict_update:
+                    prev_edges_dict_update[edge]['weight'] += edge_attributes[
                         'weight']
                 else:
-                    prev_edge_dict_update[edge] = edge_attributes
+                    prev_edges_dict_update[edge] = edge_attributes
             # Put it all together
             cumulative_episode_dict[e] = {
                 'nodes_dict': prev_nodes_dict_update,
-                'edges_dict': prev_edge_dict_update
+                'edges_dict': prev_edges_dict_update
             }
         else:
             cumulative_episode_dict[e] = copy.deepcopy(individual_episode_dict[e])
