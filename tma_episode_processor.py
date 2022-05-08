@@ -135,6 +135,7 @@ class TMAEpisode:
         self.logger.debug(f'Nodes: {pprint.pformat(self.nodes_dict)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
 
+    # TODO Consolidate this into a function
     def update_individual_node_dict(self, character, scene_i):
         if character not in self.nodes_dict:
             self.nodes_dict[character] = {'size': self.character_info_in_scenes[scene_i][character]['word_count']}
