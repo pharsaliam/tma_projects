@@ -1,6 +1,7 @@
 import logging
 
 DICT_TYPES = ['individual', 'cumulative', 'ea', 'na']
+MIN_EPISODE_APPEARANCES = 2
 
 
 def create_logger(logger_name, logging_level='INFO'):
