@@ -1,9 +1,9 @@
 import copy
 import argparse
-import pickle
 
-from utils import create_logger, DICT_TYPES
+from utils import create_logger
 from tma_episode_processor import TMAEpisode
+from utils import save_dict_as_pkl
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -101,15 +101,6 @@ def generate_cumulative_episode_dict(individual_episode_dict):
     return cumulative_episode_dict
 
 
-def save_dict_as_pkl(episode_dict, dict_type, directory):
-    assert dict_type in DICT_TYPES
-    location = f'{directory}/{dict_type}.pkl'
-    with open(location, 'wb') as outfile:
-        pickle.dump(episode_dict, outfile)
-    logger.info(f'Saved {dict_type} in {location}')
-    return None
-
-
 if __name__ == '__main__':
     logger.info(vars(args))
     indi, ea, na = generate_individual_episode_dict(args.start_episode, args.end_episode)
@@ -118,7 +109,7 @@ if __name__ == '__main__':
     cumu = generate_cumulative_episode_dict(indi)
     logger.info('Finished generating cumulative episode dict')
     logger.debug(f'Ending episode (c): {cumu[args.end_episode]}')
-    save_dict_as_pkl(na, 'na', args.save_dir)
-    save_dict_as_pkl(ea, 'ea', args.save_dir)
-    save_dict_as_pkl(indi, 'individual', args.save_dir)
-    save_dict_as_pkl(cumu, 'cumulative', args.save_dir)
+    save_dict_as_pkl(na, 'na', args.save_dir, logger)
+    save_dict_as_pkl(ea, 'ea', args.save_dir, logger)
+    save_dict_as_pkl(indi, 'individual', args.save_dir, logger)
+    save_dict_as_pkl(cumu, 'cumulative', args.save_dir, logger)

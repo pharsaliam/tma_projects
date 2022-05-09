@@ -1,3 +1,4 @@
+import pickle
 import logging
 
 DICT_TYPES = ['individual', 'cumulative', 'ea', 'na']
@@ -16,3 +17,20 @@ def create_logger(logger_name, logging_level='INFO'):
         handler.setFormatter(fmt)
         logger.addHandler(handler)
     return logger
+
+
+def open_dict_as_pkl(dict_type, directory='episode_dicts'):
+    assert dict_type in DICT_TYPES
+    with open(f'{directory}/{dict_type}.pkl', 'rb') as f:
+        ed = pickle.load(f)
+    return ed
+
+
+def save_dict_as_pkl(episode_dict, dict_type, directory='episode_dicts', logger=None):
+    assert dict_type in DICT_TYPES
+    location = f'{directory}/{dict_type}.pkl'
+    with open(location, 'wb') as outfile:
+        pickle.dump(episode_dict, outfile)
+    if logger:
+        logger.info(f'Saved {dict_type} in {location}')
+    return None
