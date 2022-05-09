@@ -3,7 +3,7 @@ import argparse
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
+from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes, create_logger
 
 FIXED_POSITIONS = {
     'MARTIN': [-0.50785913437188222, 0.08477362049934986],
@@ -28,13 +28,14 @@ DPI = 150
 
 
 class TMANetworkChart():
-    def __init__(self, directory='episode_dicts'):
+    def __init__(self, directory='episode_dicts', logging_level='INFO'):
         individual_episode_dict = open_dict_as_pkl('individual', directory=directory)
         cumulative_episode_dict = open_dict_as_pkl('cumulative', directory=directory)
         self.episode_dict_dict = {
             'individual': individual_episode_dict,
             'cumulative': cumulative_episode_dict
         }
+        self.logger = create_logger('TMA_chart', logging_level=logging_level)
 
     @staticmethod
     def set_up_individual_plot():
@@ -90,8 +91,11 @@ class TMANetworkChart():
             transform=ax.transAxes,
             bbox=dict(facecolor='#1a9340', alpha=0.5)
         )
+        self.logger.info(f'Plotted {episode_dict_type} network chart for MAG{episode_number:03}')
         if save:
-            plt.savefig(f'MAG{episode_number:03}_{episode_dict_type}.png', dpi=DPI)
+            save_location = f'MAG{episode_number:03}_{episode_dict_type}.png'
+            plt.savefig(save_location, dpi=DPI)
+            self.logger.info(f'Saved chart to {save_location}')
         return None
 
 
