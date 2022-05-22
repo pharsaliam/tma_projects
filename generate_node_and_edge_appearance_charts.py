@@ -15,12 +15,7 @@ def generate_heat_map(end_episode, appearance_dict, character_1, character_2=Non
     episode_grid_label = pd.DataFrame(df_dict)
     episode_grid_counter = pd.DataFrame(0, index=range(
         episode_grid_label.shape[0]), columns=episode_grid_label.columns)
-    if character_2:
-        key = tuple(sorted([character_1, character_2]))
-        attribute = 'weight'
-    else:
-        key = character_1
-        attribute = 'size'
+    key, attribute, title, label = retrieve_key_and_attribute(character_1, character_2)
     for episode, episode_info in appearance_dict[key].items():
         if episode <= end_episode:
             season_number = int((episode - 1) / 40)
@@ -32,12 +27,6 @@ def generate_heat_map(end_episode, appearance_dict, character_1, character_2=Non
             episode_grid_label[col] > end_episode,
             -episode_grid_counter.max().max(), episode_grid_counter[col])
     y_labels = [i+1 for i in episode_grid_counter.columns]
-    if character_2:
-        title = f'Interactions Between {character_1} and {character_2}'
-        z_label = 'Closeness Score'
-    else:
-        title = f'Words Spoken by {character_1}'
-        z_label = 'Words Spoken'
     fig = px.imshow(
         episode_grid_counter.T,
         height=350,
@@ -52,19 +41,67 @@ def generate_heat_map(end_episode, appearance_dict, character_1, character_2=Non
     fig.update(
         layout_coloraxis_showscale=False,
     )
-    fig.update_layout(font_family='Baskerville', font_size=20,
-                      hoverlabel=dict(font_family='Baskerville', font_size=14))
+    update_fig_layout(fig)
     fig.update_xaxes(visible=False)
     fig.update_yaxes(tickformat='d', tick0=1, dtick=1)
     fig.update_traces(
         text=episode_grid_label.T,
         texttemplate="%{text}",
-        hovertemplate='MAG%{text:03}<br>' + f'{z_label}' + ': %{z:.1f} <extra></extra>'
+        hovertemplate='MAG%{text:03}<br>' + f'{label}' + ': %{z:.1f} <extra></extra>'
     )
     fig.for_each_trace(lambda t: t.update(textfont_color='white',
                                           textfont_family='Baskerville',
                                           hoverlabel_bgcolor='black'))
     return fig
+
+
+def generate_bar_chart(end_episode, appearance_dict, character_1, character_2=None):
+    key, attribute, title, label = retrieve_key_and_attribute(character_1, character_2)
+    episode_appearances = appearance_dict[key]
+    list_of_episodes = [k for k in range(1, end_episode+1)]
+    df = pd.DataFrame(0, index=[label], columns=list_of_episodes)
+    for episode, appearance in episode_appearances.items():
+        df.loc[label, episode] = appearance[attribute]
+    df = df.T
+    fig = px.bar(
+        df,
+        x=list_of_episodes,
+        y=label,
+        labels=dict(
+            x='Episode',
+        ),
+        title=title,
+        color_discrete_sequence=['#23cf77'],
+        height=500,
+        width=1400,
+    )
+    update_fig_layout(fig)
+    fig.update_layout(plot_bgcolor="black")
+    fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
+    fig.update_traces(
+        hovertemplate='MAG%{x:03}<br>' + f'{label}' + ': %{y:.1f} <extra></extra>'
+    )
+    return fig
+
+
+def retrieve_key_and_attribute(character_1, character_2=None):
+    if character_2:
+        key = tuple(sorted([character_1, character_2]))
+        attribute = 'weight'
+        title = f'Interactions Between {character_1} and {character_2}'
+        label = 'Closeness Score'
+    else:
+        key = character_1
+        attribute = 'size'
+        title = f'Words Spoken by {character_1}'
+        label = 'Words Spoken'
+    return key, attribute, title, label
+
+
+def update_fig_layout(fig):
+    fig.update_layout(font_family='Baskerville', font_size=20,
+                      hoverlabel=dict(font_family='Baskerville', font_size=14))
+    return None
 
 
 if __name__ == '__main__':
@@ -92,6 +129,12 @@ if __name__ == '__main__':
              'two characters.'
     )
     parser.add_argument(
+        '--chart_type', '-C',
+        type=str,
+        choices=['heatmap', 'bar'],
+        default='bar'
+    )
+    parser.add_argument(
         '--save_dir', '-D',
         type=str,
         default='episode_dicts'
@@ -101,10 +144,14 @@ if __name__ == '__main__':
         ad = open_dict_as_pkl('ea', directory=args.save_dir)
     else:
         ad = open_dict_as_pkl('na', directory=args.save_dir)
-    fig = generate_heat_map(
+    if args.chart_type == 'bar':
+        func = generate_bar_chart
+    else:
+        func = generate_heat_map
+    figure = func(
         args.end_episode,
         ad,
         args.character_a,
         args.character_b,
     )
-    fig.show()
+    figure.show()
