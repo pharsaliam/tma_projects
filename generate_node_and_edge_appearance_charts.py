@@ -7,7 +7,7 @@ import plotly.express as px
 from utils import open_dict_as_pkl
 
 
-def generate_heat_chart_dfs(end_episode, appearance_dict, character_1, character_2=None):
+def generate_heat_map(end_episode, appearance_dict, character_1, character_2=None):
     max_season_number = int((end_episode - 1) / 40)
     df_dict = {
         season: [i for i in range((season*40)+1, (season*40)+41)] for season in range(max_season_number+1)
@@ -31,10 +31,6 @@ def generate_heat_chart_dfs(end_episode, appearance_dict, character_1, character
         episode_grid_counter[col] = np.where(
             episode_grid_label[col] > end_episode,
             -episode_grid_counter.max().max(), episode_grid_counter[col])
-    return episode_grid_label, episode_grid_counter
-
-
-def generate_heat_charts(episode_grid_label, episode_grid_counter, character_1, character_2=None):
     y_labels = [i+1 for i in episode_grid_counter.columns]
     if character_2:
         title = f'Interactions Between {character_1} and {character_2}'
@@ -105,15 +101,9 @@ if __name__ == '__main__':
         ad = open_dict_as_pkl('ea', directory=args.save_dir)
     else:
         ad = open_dict_as_pkl('na', directory=args.save_dir)
-    labels, counter = generate_heat_chart_dfs(
+    fig = generate_heat_map(
         args.end_episode,
         ad,
-        args.character_a,
-        args.character_b,
-    )
-    fig = generate_heat_charts(
-        labels,
-        counter,
         args.character_a,
         args.character_b,
     )
