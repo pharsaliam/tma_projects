@@ -16,12 +16,13 @@ def run():
         layout='wide',
     )
     st.title('The Magnus Archives Character Appearance and Interaction '
-             'Visualizations')
-    video_file = open('tma_network_1_to_40.mp4', 'rb')
+             'Visualizations (up to MAG160)')
+    video_file = open('tma_network_1_to_160.mp4', 'rb')
     video_bytes = video_file.read()
     st.video(video_bytes)
     st.subheader('View interactions episode by episode')
     episode = st.slider('Select an episode:', 1, MAX_EPISODE)
+    # episode = st.number_input('Select an episode', 1, MAX_EPISODE)
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
     chart = TMANetworkChart()
     network_fig, ax1, ax2 = chart.set_up_dual_plot()
