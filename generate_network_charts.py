@@ -40,7 +40,7 @@ class TMANetworkChart():
 
     @staticmethod
     def set_up_individual_plot():
-        fig, ax = plt.subplots(figsize=(10, 10), dpi=DPI)
+        fig, ax = plt.subplots(figsize=(10, 10), dpi=DPI, facecolor='#0E1117')
         ax.set_facecolor('black')
         ax.set_xlim([-1.2, 1.1])
         ax.set_ylim([-1.1, 1.2])
@@ -49,7 +49,7 @@ class TMANetworkChart():
 
     @staticmethod
     def set_up_dual_plot():
-        fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(20, 10), dpi=DPI)
+        fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(20, 10), dpi=DPI, facecolor='#0E1117')
         for axi in [ax1, ax2]:
             axi.set_facecolor('black')
             axi.set_xlim([-1.2, 1.1])

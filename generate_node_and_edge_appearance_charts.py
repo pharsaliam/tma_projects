@@ -49,6 +49,7 @@ def generate_heat_map(end_episode, appearance_dict, character_a, character_b=Non
         texttemplate="%{text}",
         hovertemplate='MAG%{text:03}<br>' + f'{label}' + ': %{z:.1f} <extra></extra>'
     )
+    fig.update_layout(plot_bgcolor="#262730")
     fig.for_each_trace(lambda t: t.update(textfont_color='white',
                                           textfont_family='Baskerville',
                                           hoverlabel_bgcolor='black'))
@@ -76,7 +77,7 @@ def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=No
         width=1400,
     )
     update_fig_layout(fig)
-    fig.update_layout(plot_bgcolor="black")
+    fig.update_layout(plot_bgcolor="#262730") # TODO make this effective
     fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
     fig.update_traces(
         hovertemplate='MAG%{x:03}<br>' + f'{label}' + ': %{y:.1f} <extra></extra>'
