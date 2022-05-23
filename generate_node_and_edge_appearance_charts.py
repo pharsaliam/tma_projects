@@ -15,7 +15,7 @@ def generate_heat_map(end_episode, appearance_dict, character_a, character_b=Non
     episode_grid_label = pd.DataFrame(df_dict)
     episode_grid_counter = pd.DataFrame(0, index=range(
         episode_grid_label.shape[0]), columns=episode_grid_label.columns)
-    key, attribute, title, label = retrieve_key_and_attribute(character_a, character_b)
+    key, attribute, title, label, attribute_format = retrieve_key_and_attribute(character_a, character_b)
     for episode, episode_info in appearance_dict[key].items():
         if episode <= end_episode:
             season_number = int((episode - 1) / 40)
@@ -47,7 +47,7 @@ def generate_heat_map(end_episode, appearance_dict, character_a, character_b=Non
     fig.update_traces(
         text=episode_grid_label.T,
         texttemplate="%{text}",
-        hovertemplate='MAG%{text:03}<br>' + f'{label}' + ': %{z:.1f} <extra></extra>'
+        hovertemplate='MAG%{text:03}<br>' + f'{label}' + ': %{z:' + f'{attribute_format}' + '} <extra></extra>'
     )
     fig.update_layout(plot_bgcolor="#262730")
     fig.for_each_trace(lambda t: t.update(textfont_color='white',
@@ -57,7 +57,7 @@ def generate_heat_map(end_episode, appearance_dict, character_a, character_b=Non
 
 
 def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=None):
-    key, attribute, title, label = retrieve_key_and_attribute(character_a, character_b)
+    key, attribute, title, label, attribute_format = retrieve_key_and_attribute(character_a, character_b)
     episode_appearances = appearance_dict[key]
     list_of_episodes = [k for k in range(1, end_episode+1)]
     df = pd.DataFrame(0, index=[label], columns=list_of_episodes)
@@ -80,7 +80,7 @@ def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=No
     fig.update_layout(plot_bgcolor="#262730") # TODO make this effective
     fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
     fig.update_traces(
-        hovertemplate='MAG%{x:03}<br>' + f'{label}' + ': %{y:.1f} <extra></extra>'
+        hovertemplate='MAG%{x:03}<br>' + f'{label}' + ': %{y:' + f'{attribute_format}' + '} <extra></extra>'
     )
     return fig
 
@@ -91,12 +91,14 @@ def retrieve_key_and_attribute(character_a, character_b=None):
         attribute = 'weight'
         title = f'Interactions Between {character_a} and {character_b}'
         label = 'Closeness Score'
+        attribute_format = '.0f'
     else:
         key = character_a
         attribute = 'size'
         title = f'Words Spoken by {character_a}'
         label = 'Words Spoken'
-    return key, attribute, title, label
+        attribute_format = '.3s'
+    return key, attribute, title, label, attribute_format
 
 
 def update_fig_layout(fig):
