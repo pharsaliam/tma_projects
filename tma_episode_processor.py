@@ -34,10 +34,11 @@ class TMAEpisode:
         with open('episode_texts/tma_text_from_epub.pkl', 'rb') as f:
             all_episode_texts = pickle.load(f)
         html_text = all_episode_texts[self.number]
-        tmarker1 = '[CLICK]'
+        tmarker1 = '[CLICK'
         tmarker2 = '[TAPE CLICKS'
+        tmarker3 = 'End supplement'
         t_start_l = [html_text.find(tmarker1), html_text.find(tmarker2)]
-        t_end_l = [html_text.rfind(tmarker1), html_text.rfind(tmarker2)]
+        t_end_l = [html_text.rfind(tmarker1), html_text.rfind(tmarker2), html_text.find(tmarker3)]
         t_start_l = [i for i in t_start_l if i > 0]
         t_end_l = [i for i in t_end_l if i > 0]
         t_start = min(t_start_l + [0])
