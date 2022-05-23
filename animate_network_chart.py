@@ -38,10 +38,9 @@ if __name__ == '__main__':
     camera = Camera(fig)
     for i in range(args.start_episode, args.end_episode+1):
         chart.generate_network_chart('cumulative', i, ax, nodes_included, edges_included)
-        plt.pause(0.1)
         camera.snap()
-    animation = camera.animate()
-    save_location = f'tma_network_{args.start_episode}_to_{args.end_episode}.gif'
-    animation.save(save_location, writer='Pillow', fps=2)
+    animation = camera.animate(interval=300)
+    save_location = f'tma_network_{args.start_episode}_to_{args.end_episode}.mp4'
+    animation.save(save_location)
     logger.info(f'Saved gif to {save_location}')
     plt.close('all')

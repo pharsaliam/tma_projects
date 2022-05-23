@@ -17,19 +17,9 @@ def run():
     )
     st.title('The Magnus Archives Character Appearance and Interaction '
              'Visualizations')
-    file_ = open("tma_network_1_to_40.gif", "rb")
-    contents = file_.read()
-    data_url = base64.b64encode(contents).decode("utf-8")
-    file_.close()
-    st.subheader('Cumulative Character Network Over Time')
-    st.markdown(
-        f'''
-        <p align="center">
-        <img src="data:image/gif;base64,{data_url}" width="800">
-        </p>
-    ''',
-        unsafe_allow_html=True,
-    )
+    video_file = open('tma_network_1_to_40.mp4', 'rb')
+    video_bytes = video_file.read()
+    st.video(video_bytes)
     st.subheader('View interactions episode by episode')
     episode = st.slider('Select an episode:', 1, MAX_EPISODE)
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
