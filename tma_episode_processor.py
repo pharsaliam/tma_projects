@@ -73,7 +73,7 @@ class TMAEpisode:
         appearances = []
         for i, line in enumerate(lines):
             self.logger.debug(f'On line {i}: {line}')
-            if re.match('^[A-Z]*$',
+            if re.match('^[A-Z!]*$',
                         line):  # if it matches what looks like a character name
                 self.logger.debug(
                     f'This is a character name. The current character is {current_character}')
