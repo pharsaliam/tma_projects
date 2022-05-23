@@ -1,5 +1,3 @@
-import base64
-
 import streamlit as st
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
