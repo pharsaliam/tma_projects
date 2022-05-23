@@ -7,7 +7,7 @@ import plotly.express as px
 from utils import open_dict_as_pkl
 
 
-def generate_heat_map(end_episode, appearance_dict, character_1, character_2=None):
+def generate_heat_map(end_episode, appearance_dict, character_a, character_b=None):
     max_season_number = int((end_episode - 1) / 40)
     df_dict = {
         season: [i for i in range((season*40)+1, (season*40)+41)] for season in range(max_season_number+1)
@@ -15,7 +15,7 @@ def generate_heat_map(end_episode, appearance_dict, character_1, character_2=Non
     episode_grid_label = pd.DataFrame(df_dict)
     episode_grid_counter = pd.DataFrame(0, index=range(
         episode_grid_label.shape[0]), columns=episode_grid_label.columns)
-    key, attribute, title, label = retrieve_key_and_attribute(character_1, character_2)
+    key, attribute, title, label = retrieve_key_and_attribute(character_a, character_b)
     for episode, episode_info in appearance_dict[key].items():
         if episode <= end_episode:
             season_number = int((episode - 1) / 40)
@@ -55,8 +55,8 @@ def generate_heat_map(end_episode, appearance_dict, character_1, character_2=Non
     return fig
 
 
-def generate_bar_chart(end_episode, appearance_dict, character_1, character_2=None):
-    key, attribute, title, label = retrieve_key_and_attribute(character_1, character_2)
+def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=None):
+    key, attribute, title, label = retrieve_key_and_attribute(character_a, character_b)
     episode_appearances = appearance_dict[key]
     list_of_episodes = [k for k in range(1, end_episode+1)]
     df = pd.DataFrame(0, index=[label], columns=list_of_episodes)
@@ -84,16 +84,16 @@ def generate_bar_chart(end_episode, appearance_dict, character_1, character_2=No
     return fig
 
 
-def retrieve_key_and_attribute(character_1, character_2=None):
-    if character_2:
-        key = tuple(sorted([character_1, character_2]))
+def retrieve_key_and_attribute(character_a, character_b=None):
+    if character_b:
+        key = tuple(sorted([character_a, character_b]))
         attribute = 'weight'
-        title = f'Interactions Between {character_1} and {character_2}'
+        title = f'Interactions Between {character_a} and {character_b}'
         label = 'Closeness Score'
     else:
-        key = character_1
+        key = character_a
         attribute = 'size'
-        title = f'Words Spoken by {character_1}'
+        title = f'Words Spoken by {character_a}'
         label = 'Words Spoken'
     return key, attribute, title, label
 
