@@ -2,7 +2,7 @@ import pickle
 import logging
 
 DICT_TYPES = ['individual', 'cumulative', 'ea', 'na']
-MIN_EPISODE_APPEARANCES = 2
+MIN_EPISODE_APPEARANCES = 3
 
 
 def create_logger(logger_name, logging_level='INFO'):
@@ -35,10 +35,11 @@ def save_dict_as_pkl(episode_dict, dict_type, directory='episode_dicts', logger=
         logger.info(f'Saved {dict_type} in {location}')
     return None
 
+
 def retrieve_included_edges_and_nodes(directory='episode_dicts', minimum_episode_appearances=MIN_EPISODE_APPEARANCES):
     node_appearance_dict = open_dict_as_pkl('na', directory=directory)
     edges_appearance_dict = open_dict_as_pkl('ea', directory=directory)
-    nodes_incl = [node for node, node_appearances in node_appearance_dict.items() if len(node_appearances) > minimum_episode_appearances]
+    nodes_incl = [node for node, node_appearances in node_appearance_dict.items() if len(node_appearances) >= minimum_episode_appearances]
     edges_incl = [edge for edge, edge_appearance in edges_appearance_dict.items() if
                   (edge[0] in nodes_incl) & (edge[1] in nodes_incl)]
     return nodes_incl, edges_incl
