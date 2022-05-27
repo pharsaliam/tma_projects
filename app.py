@@ -1,8 +1,8 @@
 import streamlit as st
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
-from generate_network_charts import TMANetworkChart
-from B_episode_dicts.generate_node_and_edge_appearance_charts import generate_bar_chart, generate_heat_map
+from C_episode_charts.generate_network_charts import TMANetworkChart
+from C_episode_charts.generate_node_and_edge_appearance_charts import generate_bar_chart, generate_heat_map
 
 MAX_EPISODE = 160
 
@@ -28,7 +28,7 @@ def run():
         
         See the FAQ section at the end for details. 
     ''')
-    video_file = open('tma_network_1_to_160.mp4', 'rb')
+    video_file = open('C_episode_charts/charts/tma_network_1_to_160.mp4', 'rb')
     video_bytes = video_file.read()
     st.video(video_bytes)
     st.subheader('View interactions episode by episode')

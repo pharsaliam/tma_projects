@@ -1,7 +1,12 @@
 import argparse
+import os
+import sys
 
 import matplotlib.pyplot as plt
 import networkx as nx
+
+p = os.path.abspath('.')
+sys.path.insert(1, p)
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes, create_logger
 
@@ -56,7 +61,6 @@ class TMANetworkChart():
             axi.set_ylim([-1.1, 1.2])
         fig.tight_layout(pad=0.75)
         return fig, ax1, ax2
-
 
     def generate_network_chart(self, episode_dict_type, episode_number, ax, nodes_incl, edges_incl, save=False):
         assert episode_dict_type in ('individual', 'cumulative')

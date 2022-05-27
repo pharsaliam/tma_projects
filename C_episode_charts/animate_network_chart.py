@@ -1,10 +1,15 @@
 import argparse
+import os
+import sys
 
 from celluloid import Camera
 import matplotlib.pyplot as plt
 
+p = os.path.abspath('.')
+sys.path.insert(1, p)
+
 from utils import retrieve_included_edges_and_nodes, create_logger
-from generate_network_charts import TMANetworkChart
+from C_episode_charts.generate_network_charts import TMANetworkChart
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,7 +45,7 @@ if __name__ == '__main__':
         chart.generate_network_chart('cumulative', i, ax, nodes_included, edges_included)
         camera.snap()
     animation = camera.animate(interval=300)
-    save_location = f'tma_network_{args.start_episode}_to_{args.end_episode}.mp4'
+    save_location = f'C_episode_charts/charts/tma_network_{args.start_episode}_to_{args.end_episode}.mp4'
     animation.save(save_location)
     logger.info(f'Saved gif to {save_location}')
     plt.close('all')
