@@ -51,18 +51,25 @@ def generate_individual_episode_dict(start_episode, end_episode):
             'nodes_dict': episode.nodes_dict,
             'edges_dict': episode.edges_dict
         }
-        # TODO Consolidate this into a function
-        for edge, edge_attributes in episode.edges_dict.items():
-            if edge in edge_appearance_dict:
-                edge_appearance_dict[edge][episode.number] = edge_attributes
-            else:
-                edge_appearance_dict[edge] = {episode.number: edge_attributes}
-        for node, node_attributes in episode.nodes_dict.items():
-            if node in node_appearance_dict:
-                node_appearance_dict[node][episode.number] = node_attributes
-            else:
-                node_appearance_dict[node] = {episode.number: node_attributes}
+        update_item_appearance_dict(
+            episode.edges_dict,
+            edge_appearance_dict,
+            episode.number
+        )
+        update_item_appearance_dict(
+            episode.nodes_dict,
+            node_appearance_dict,
+            episode.number
+        )
     return individual_episode_dict, edge_appearance_dict, node_appearance_dict
+
+
+def update_item_appearance_dict(items_dict, item_appearance_dict, episode_number):
+    for item, item_attributes in items_dict.items():
+        if item in item_appearance_dict:
+            item_appearance_dict[item][episode_number] = item_attributes
+        else:
+            item_appearance_dict[item] = {episode_number: item_attributes}
 
 
 def generate_cumulative_episode_dict(individual_episode_dict):
@@ -70,26 +77,16 @@ def generate_cumulative_episode_dict(individual_episode_dict):
     for e in individual_episode_dict:
         prev_e = e - 1
         if prev_e in cumulative_episode_dict:
-            # Update nodes
-            prev_nodes_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['nodes_dict'])
-            current_nodes_dict = copy.deepcopy(individual_episode_dict[e]['nodes_dict'])
-            for node, node_attributes in current_nodes_dict.items():
-                # TODO Consolidate this into a function
-                if node in prev_nodes_dict_update:
-                    prev_nodes_dict_update[node]['size'] += node_attributes['size']
-                else:
-                    prev_nodes_dict_update[node] = node_attributes
-            # Update edges
-            prev_edges_dict_update = copy.deepcopy(cumulative_episode_dict[prev_e]['edges_dict'])
-            current_edges_dict = copy.deepcopy(individual_episode_dict[e]['edges_dict'])
-            for edge, edge_attributes in current_edges_dict.items():
-                # TODO Consolidate this into a function
-                if edge in prev_edges_dict_update:
-                    prev_edges_dict_update[edge]['weight'] += edge_attributes[
-                        'weight']
-                else:
-                    prev_edges_dict_update[edge] = edge_attributes
-            # Put it all together
+            prev_nodes_dict_update = update_cumulative_items_dict(
+                'node',
+                cumulative_episode_dict[prev_e],
+                individual_episode_dict[e]
+            )
+            prev_edges_dict_update = update_cumulative_items_dict(
+                'edge',
+                cumulative_episode_dict[prev_e],
+                individual_episode_dict[e]
+            )
             cumulative_episode_dict[e] = {
                 'nodes_dict': prev_nodes_dict_update,
                 'edges_dict': prev_edges_dict_update
@@ -99,6 +96,20 @@ def generate_cumulative_episode_dict(individual_episode_dict):
         logger.info(f'Generated cumulative episode dict for episode {e}')
         logger.debug(f'{cumulative_episode_dict}')
     return cumulative_episode_dict
+
+
+def update_cumulative_items_dict(item_type, previous_episode_dict, current_episode_dict):
+    assert item_type in ('node', 'edge')
+    item_dict_key = f'{item_type}s_dict'
+    attribute = 'size' if item_type == 'node' else 'weight'
+    prev_items_dict_update = copy.deepcopy(previous_episode_dict[item_dict_key])
+    current_items_dict = copy.deepcopy(current_episode_dict[item_dict_key])
+    for item, item_attributes in current_items_dict.items():
+        if item in prev_items_dict_update:
+            prev_items_dict_update[item][attribute] += item_attributes[attribute]
+        else:
+            prev_items_dict_update[item] = item_attributes
+    return prev_items_dict_update
 
 
 if __name__ == '__main__':
