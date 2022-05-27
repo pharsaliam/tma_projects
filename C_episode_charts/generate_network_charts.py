@@ -10,6 +10,8 @@ sys.path.insert(1, p)
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes, create_logger
 
+plt.rcParams['font.serif'] = ['Baskerville']
+
 FIXED_POSITIONS = {
     'MARTIN': [-0.50785913437188222, 0.08477362049934986],
     'ELIAS': [0.494622046596421, -0.8496412076926273],
@@ -73,7 +75,7 @@ class TMANetworkChart():
         g.add_nodes_from(nodes)
         g.add_edges_from(edges)
         pos = FIXED_POSITIONS
-        font = {'color': 'white', 'fontsize': 18, 'family': 'Baskerville',
+        font = {'color': 'white', 'fontsize': 18, 'family': 'serif',
                 'fontweight': 'bold'}
         if episode_dict_type == 'cumulative':
             node_size = [s[1]['size'] / 40 for s in g.nodes.data()]
