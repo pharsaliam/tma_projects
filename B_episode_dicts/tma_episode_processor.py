@@ -31,7 +31,7 @@ class TMAEpisode:
         self.generate_nodes_and_edges_dict()
 
     def extract_transcript(self):
-        with open('1_episode_texts/texts/tma_text_from_epub.pkl', 'rb') as f:
+        with open('A_episode_texts/texts/tma_text_from_epub.pkl', 'rb') as f:
             all_episode_texts = pickle.load(f)
         html_text = all_episode_texts[self.number]
         tmarker1 = '[CLICK'
