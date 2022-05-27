@@ -124,30 +124,32 @@ class TMAEpisode:
         for scene_i, scene_info in self.character_info_in_scenes.items():
             characters_in_scene = [c for c in scene_info]
             for character in characters_in_scene:
-                self.update_individual_node_dict(character, scene_i)
+                self.update_individual_dict('node', character, scene_i)
             if len(characters_in_scene) == 2:
                 cs = tuple(sorted(characters_in_scene))
-                self.update_individual_edge_dict(cs, scene_i)
+                self.update_individual_dict('edge', cs, scene_i)
             elif len(characters_in_scene) > 2:
                 cs_combo = [i for i in itertools.combinations(characters_in_scene, 2)]
                 for p in cs_combo:
                     p = tuple(sorted(p))
-                    self.update_individual_edge_dict(p, scene_i)
+                    self.update_individual_dict('edge', p, scene_i)
         self.logger.debug(f'Nodes: {pprint.pformat(self.nodes_dict)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
 
-    # TODO Consolidate this into a function
-    def update_individual_node_dict(self, character, scene_i):
-        if character not in self.nodes_dict:
-            self.nodes_dict[character] = {'size': self.character_info_in_scenes[scene_i][character]['word_count']}
+    def update_individual_dict(self, item_type, key, scene_i):
+        assert item_type in ('node', 'edge')
+        if item_type == 'node':
+            item_dict = self.nodes_dict
+            attribute = 'size'
+            update = self.character_info_in_scenes[scene_i][key]['word_count']
         else:
-            self.nodes_dict[character]['size'] += self.character_info_in_scenes[scene_i][character]['word_count']
-
-    def update_individual_edge_dict(self, pair, scene_i):
-        if pair not in self.edges_dict:
-            self.edges_dict[pair] = {'weight': self.get_edge_closeness_in_scene(scene_i, pair[0], pair[1])}
+            item_dict = self.edges_dict
+            attribute = 'weight'
+            update = self.get_edge_closeness_in_scene(scene_i, key[0], key[1])
+        if key not in item_dict:
+            item_dict[key] = {attribute: update}
         else:
-            self.edges_dict[pair]['weight'] += self.get_edge_closeness_in_scene(scene_i, pair[0], pair[1])
+            item_dict[key][attribute] += update
 
     def get_edge_closeness_in_scene(self, scene_i, character_1, character_2, min_lines=5, min_closeness=0.005):
         list_1 = self.character_info_in_scenes[scene_i][character_1]['appearances']
