@@ -1,8 +1,13 @@
 import argparse
+import sys
+import os
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
+
+p = os.path.abspath('.')
+sys.path.insert(1, p)
 
 from utils import open_dict_as_pkl
 
@@ -140,7 +145,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--save_dir', '-D',
         type=str,
-        default='episode_dicts'
+        default='B_episode_dicts/dicts'
     )
     args = parser.parse_args()
     if args.character_b:

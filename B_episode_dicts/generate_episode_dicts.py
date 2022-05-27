@@ -1,9 +1,13 @@
 import copy
 import argparse
+import sys
+import os
 
-from utils import create_logger
-from tma_episode_processor import TMAEpisode
-from utils import save_dict_as_pkl
+p = os.path.abspath('.')
+sys.path.insert(1, p)
+
+from utils import create_logger, save_dict_as_pkl
+from B_episode_dicts.tma_episode_processor import TMAEpisode
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -29,7 +33,8 @@ parser.add_argument(
 parser.add_argument(
     '--save_dir', '-D',
     type=str,
-    default='episode_dicts'
+    default='B_episode_dicts/dicts',
+    help='Directory to which to save the episode dicts'
 )
 args = parser.parse_args()
 if args.end_episode < args.start_episode:

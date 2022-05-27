@@ -29,7 +29,7 @@ DPI = 150
 
 
 class TMANetworkChart():
-    def __init__(self, directory='episode_dicts', logging_level='INFO'):
+    def __init__(self, directory='B_episode_dicts/dicts', logging_level='INFO'):
         individual_episode_dict = open_dict_as_pkl('individual', directory=directory)
         cumulative_episode_dict = open_dict_as_pkl('cumulative', directory=directory)
         self.episode_dict_dict = {
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--save_dir', '-D',
         type=str,
-        default='episode_dicts',
+        default='B_episode_dicts/dicts',
         help='Directory where individual and cumulative dicts are saved'
     )
     args = parser.parse_args()

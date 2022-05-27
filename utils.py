@@ -19,14 +19,14 @@ def create_logger(logger_name, logging_level='INFO'):
     return logger
 
 
-def open_dict_as_pkl(dict_type, directory='episode_dicts'):
+def open_dict_as_pkl(dict_type, directory='B_episode_dicts/dicts'):
     assert dict_type in DICT_TYPES
     with open(f'{directory}/{dict_type}.pkl', 'rb') as f:
         ed = pickle.load(f)
     return ed
 
 
-def save_dict_as_pkl(episode_dict, dict_type, directory='episode_dicts', logger=None):
+def save_dict_as_pkl(episode_dict, dict_type, directory='B_episode_dicts/dicts', logger=None):
     assert dict_type in DICT_TYPES
     location = f'{directory}/{dict_type}.pkl'
     with open(location, 'wb') as outfile:
@@ -36,7 +36,7 @@ def save_dict_as_pkl(episode_dict, dict_type, directory='episode_dicts', logger=
     return None
 
 
-def retrieve_included_edges_and_nodes(directory='episode_dicts', minimum_episode_appearances=MIN_EPISODE_APPEARANCES):
+def retrieve_included_edges_and_nodes(directory='B_episode_dicts/dicts', minimum_episode_appearances=MIN_EPISODE_APPEARANCES):
     node_appearance_dict = open_dict_as_pkl('na', directory=directory)
     edges_appearance_dict = open_dict_as_pkl('ea', directory=directory)
     nodes_incl = [node for node, node_appearances in node_appearance_dict.items() if len(node_appearances) >= minimum_episode_appearances]

@@ -2,7 +2,7 @@ import streamlit as st
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
 from generate_network_charts import TMANetworkChart
-from generate_node_and_edge_appearance_charts import generate_bar_chart, generate_heat_map
+from B_episode_dicts.generate_node_and_edge_appearance_charts import generate_bar_chart, generate_heat_map
 
 MAX_EPISODE = 160
 
