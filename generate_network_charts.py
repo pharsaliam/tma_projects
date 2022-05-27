@@ -109,9 +109,15 @@ if __name__ == '__main__':
         choices=range(1, 161),
         help='Episode to plot'
     )
+    parser.add_argument(
+        '--save_dir', '-D',
+        type=str,
+        default='episode_dicts',
+        help='Directory where individual and cumulative dicts are saved'
+    )
     args = parser.parse_args()
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
-    chart = TMANetworkChart()
+    chart = TMANetworkChart(directory=args.save_dir)
     fig, ax1, ax2 = chart.set_up_dual_plot()
     chart.generate_network_chart('individual', args.episode, ax1, nodes_included, edges_included)
     chart.generate_network_chart('cumulative', args.episode, ax2, nodes_included, edges_included)
