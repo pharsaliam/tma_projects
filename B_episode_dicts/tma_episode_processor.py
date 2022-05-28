@@ -13,7 +13,37 @@ CHARACTER_CONSOLIDATION_DICT = {
 
 
 class TMAEpisode:
+    """
+    A class used to represent an episode.
+
+    Attributes
+    ---
+    number : int
+        Episode number
+    logger : a logging.Logger object
+    transcript: str
+        Episode transcript (stripped of title, summary, notes etc.)
+    character_info_in_scenes: dict
+        Nested dictionary where key is a scene number and value is a dictionary
+        of characters, their word counts, and line appearances in the scene
+    nodes_dict: dict
+        Nested dictionary where key is a character in the episode and value is
+        a dictionary of their attributes in the episode (currently just total
+        words spoken, labeled "size" since it will be the size of the node)
+    edges_dict: dict
+        Nested dictionary where key is a pair of characters who appear in at
+        least one scene together in the episode and value is a dictionary
+        of their interaction attributes (currently just the "closeness" of
+        interaction, labeled "weight" since it will be the weight of the edge)
+    """
     def __init__(self, episode_number, logging_level='INFO'):
+        """
+        :param episode_number: Episode number
+        :type episode_number: int
+        :param logging_level: A standard Python logging level
+            (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        :type logging_level: str
+        """
         self.number = episode_number
         self.logger = create_logger('tma_ep', logging_level=logging_level)
         self.transcript = None
@@ -31,6 +61,11 @@ class TMAEpisode:
         self.generate_nodes_and_edges_dict()
 
     def extract_transcript(self):
+        """
+        Strips episode text of title, summary, and notes to extract transcript
+        :return: None
+        :rtype: None
+        """
         with open('A_episode_texts/texts/tma_text_from_epub.pkl', 'rb') as f:
             all_episode_texts = pickle.load(f)
         html_text = all_episode_texts[self.number]
@@ -44,8 +79,15 @@ class TMAEpisode:
         t_start = min(t_start_l + [0])
         t_end = max(t_end_l + [-1])
         self.transcript = html_text[t_start:t_end]
+        return None
 
     def clean_up_character_names(self):
+        """
+        Removing parenthetical after character names in transcript
+        (e.g., "ELIAS (JONAH)" becomes "ELIAS"
+        :return: None
+        :rtype: None
+        """
         lines = self.transcript.split('\n')
         new_lines = []
         for line in lines:
@@ -55,8 +97,15 @@ class TMAEpisode:
             else:
                 new_lines.append(line)
         self.transcript = '\n'.join(new_lines)
+        return None
 
     def extract_character_info_in_scenes(self):
+        """
+        Parses the transcript for scenes (denoted by the click of the tape
+        recorder) and generates character info for each scene
+        :return: None
+        :rtype: None
+        """
         for k, v in CHARACTER_CONSOLIDATION_DICT.items():
             self.transcript = self.transcript.replace(k, v)
         scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
@@ -64,8 +113,23 @@ class TMAEpisode:
         for i, scene in enumerate(scene_list):
             self.character_info_in_scenes[i] = self.generate_character_info(
                 scene)
+        return None
 
     def generate_character_info(self, scene):
+        """
+        Parses a scene and, for each character in the scene, extracts the
+        words spoken and their line appearances
+        This assumes that:
+         1. character names are formatted as a upper case word in its own line
+         2. action sequences are formatted as a series of upper case words in
+            square brackets
+         3. dialogue is anything that isn't a character name or action sequence
+        :param scene: Scene number
+        :type scene: int
+        :return: A nested dictionary where key is a character name and value is
+            a dictionary with words spoken and line appearances
+        :rtype: dict
+        """
         lines = scene.split('\n')
         character_info = defaultdict(self.character_dict_default_value)
         current_character = ''
@@ -118,9 +182,20 @@ class TMAEpisode:
 
     @staticmethod
     def character_dict_default_value():
+        """
+        Creates default dictionary for character info in scene
+        :return: default dictionary for character info in scene
+        :rtype: dict
+        """
         return {'word_count': 0, 'appearances': []}
 
     def generate_nodes_and_edges_dict(self):
+        """
+        Parses character info in each scene and generates a total nodes and
+        edges dictionaries for the entire episode
+        :return: None
+        :rtype: None
+        """
         for scene_i, scene_info in self.character_info_in_scenes.items():
             characters_in_scene = [c for c in scene_info]
             for character in characters_in_scene:
@@ -135,8 +210,22 @@ class TMAEpisode:
                     self.update_individual_dict('edge', p, scene_i)
         self.logger.debug(f'Nodes: {pprint.pformat(self.nodes_dict)}')
         self.logger.debug(f'Edges: {pprint.pformat(self.edges_dict)}')
+        return None
 
     def update_individual_dict(self, item_type, key, scene_i):
+        """
+        Checks for a key in a node/edge dictionary. Adds it with current scene attributes
+         if it's not there. Updates its attributes if it is
+        :param item_type: Either node or edge
+        :type item_type: str
+        :param key: Either a character name (for node) or tuple representing
+            a character pair
+        :type key: str or tuple
+        :param scene_i: Scene number
+        :type scene_i: int
+        :return: None
+        :rtype: None
+        """
         assert item_type in ('node', 'edge')
         if item_type == 'node':
             item_dict = self.nodes_dict
@@ -150,8 +239,29 @@ class TMAEpisode:
             item_dict[key] = {attribute: update}
         else:
             item_dict[key][attribute] += update
+        return None
 
     def get_edge_closeness_in_scene(self, scene_i, character_1, character_2, min_lines=5, min_closeness=0.005):
+        """
+        Calculates the closeness of a character pair in the scene
+        The pair will start with a min_closeness score for just being in the
+        same scene.
+        Closeness increases by 2 every time the pair speak within min_lines
+        of each other.
+        :param scene_i: Scene number
+        :type scene_i: int
+        :param character_1: Name of a character in the pair
+        :type character_1: str
+        :param character_2: Name of another character in the pair
+        :type character_2: str
+        :param min_lines: Threshold line number separation for increasing
+            closeness score
+        :type min_lines: int
+        :param min_closeness: Base closeness score for appearance in same scene
+        :type min_closeness: float
+        :return: Closeness score
+        :rtype: float
+        """
         list_1 = self.character_info_in_scenes[scene_i][character_1]['appearances']
         list_2 = self.character_info_in_scenes[scene_i][character_2]['appearances']
         l_idx, r_idx, counter, curr_count = 0, 0, 0, 0
