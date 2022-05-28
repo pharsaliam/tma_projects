@@ -10,8 +10,6 @@ sys.path.insert(1, p)
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes, create_logger
 
-plt.rcParams['font.serif'] = ['Baskerville']
-
 FIXED_POSITIONS = {
     'MARTIN': [-0.50785913437188222, 0.08477362049934986],
     'ELIAS': [0.494622046596421, -0.8496412076926273],
@@ -107,6 +105,7 @@ class TMANetworkChart():
 
 
 if __name__ == '__main__':
+    plt.rcParams['font.serif'] = ['Baskerville']
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--episode', '-E',
