@@ -33,8 +33,26 @@ FIXED_POSITIONS = {
 DPI = 150
 
 
-class TMANetworkChart():
+class TMANetworkChart:
+    """
+    A class used to represent an episode network chart.
+
+    Attributes
+    ---
+    episode_dict_dict: dict
+        Nested dictionary containing both the individual and cumulative
+        episode dicts
+    logger: a logging.Logger object
+    """
     def __init__(self, directory='B_episode_dicts/dicts', logging_level='INFO'):
+        """
+        :param directory: Directory from which to retrieve the individual
+            and cumulative episode dicts
+        :type directory: str
+        :param logging_level: A standard Python logging level
+            (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        :type logging_level: str
+        """
         individual_episode_dict = open_dict_as_pkl('individual', directory=directory)
         cumulative_episode_dict = open_dict_as_pkl('cumulative', directory=directory)
         self.episode_dict_dict = {
@@ -45,6 +63,16 @@ class TMANetworkChart():
 
     @staticmethod
     def set_up_individual_plot(figsize=(10, 10), dpi=DPI):
+        """
+        Set configuration for creating an individual plot of either an
+        individual or cumulative network chart
+        :param figsize: Width, height in inches.
+        :type figsize: (float, float)
+        :param dpi: The resolution of the figure in dots-per-inch
+        :type dpi: float
+        :return: matplotlib.figure.Figure object, matplotlib.axes.Axes object
+        :rtype: matplotlib.figure.Figure object, matplotlib.axes.Axes object
+        """
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi, facecolor='#0E1117')
         ax.set_facecolor('black')
         ax.set_xlim([-1.2, 1.1])
@@ -54,6 +82,16 @@ class TMANetworkChart():
 
     @staticmethod
     def set_up_dual_plot(figsize=(20, 10), dpi=DPI):
+        """
+        Set configuration for creating side-by-side plots for individual and
+        cumulative network charts
+        :param figsize: Width, height in inches.
+        :type figsize: (float, float)
+        :param dpi: The resolution of the figure in dots-per-inch
+        :type dpi: float
+        :return: matplotlib.figure.Figure object, matplotlib.axes.Axes array
+        :rtype: matplotlib.figure.Figure object, matplotlib.axes.Axes array
+        """
         fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=figsize, dpi=dpi, facecolor='#0E1117')
         for axi in [ax1, ax2]:
             axi.set_facecolor('black')
@@ -63,6 +101,24 @@ class TMANetworkChart():
         return fig, ax1, ax2
 
     def generate_network_chart(self, episode_dict_type, episode_number, ax, nodes_incl, edges_incl, save=False):
+        """
+        Plots an individual or cumulative network chart for a particular
+        episode
+        :param episode_dict_type: 'individual' or 'cumulative'
+        :type episode_dict_type: str
+        :param episode_number: episode number
+        :type episode_number: int
+        :param ax: the matplotlib.axes.Axes object on which to plot
+        :type ax: matplotlib.axes.Axes object
+        :param nodes_incl: Nodes to include in the chart
+        :type nodes_incl: list
+        :param edges_incl: Edges to include in the chart
+        :type edges_incl: list
+        :param save: Whether or not to save the figure
+        :type save: bool
+        :return: None
+        :rtype: None
+        """
         assert episode_dict_type in ('individual', 'cumulative')
         episode_dict = self.episode_dict_dict[episode_dict_type]
         nd = episode_dict[episode_number]['nodes_dict']

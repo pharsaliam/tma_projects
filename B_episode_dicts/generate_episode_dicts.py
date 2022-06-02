@@ -11,6 +11,25 @@ from B_episode_dicts.tma_episode_processor import TMAEpisode
 
 
 def generate_individual_episode_dict(start_episode, end_episode, logger_object=None):
+    """
+    Generates
+        1. a nested dictionary where key is an episode number and values
+        contain nodes and edges dictionary for the character appearances and
+        interactions in the individual episode
+        2. a nested dictionary where the key is a character name (node) and
+        values contain episode appearance information (words spoken)
+        3. a nested dictionary where the key is a character pair (edge) and
+        values contain episode appearance information (closeness)
+    :param start_episode: First episode to appear in dictionary
+    :type start_episode: int
+    :param end_episode: Last episode to appear in dictionary
+    :type end_episode: int
+    :param logger_object: a logging.Logger object
+    :type logger_object: logging.Logger object
+    :return: Individual episode dictionary, node appearance dict, edge
+        appearance dict
+    :rtype: dict, dict, dict
+    """
     list_of_episodes = [i for i in range(start_episode, end_episode+1)]
     if logger_object:
         logger_object.debug(f'{list_of_episodes=}')
@@ -40,14 +59,43 @@ def generate_individual_episode_dict(start_episode, end_episode, logger_object=N
 
 
 def update_item_appearance_dict(items_dict, item_appearance_dict, episode_number):
+    """
+    Checks for a key in a node/edge appearance dictionary. Adds it with current
+    episode appearance attributes if it's not there. Adds to appearance dict
+    if it does appear
+    :param items_dict: Nodes or edges dict attribute from TMAEpisode
+    :type items_dict: dict
+    :param item_appearance_dict: Nodes or edges appearance dict where key is
+        a node or edge and the values contain information for each episode
+        where the node or edge appear and their appearance attributes
+    :type item_appearance_dict: dict
+    :param episode_number: Current episode number
+    :type episode_number: int
+    :return: None
+    :rtype: None
+    """
     for item, item_attributes in items_dict.items():
         if item in item_appearance_dict:
             item_appearance_dict[item][episode_number] = item_attributes
         else:
             item_appearance_dict[item] = {episode_number: item_attributes}
+    return None
 
 
 def generate_cumulative_episode_dict(individual_episode_dict, logger_object=None):
+    """
+    Generates a nested dictionary where key is an episode number and values
+    contain nodes and edges dictionary for the cumulative character
+    appearances and interactions up to that episode
+    :param individual_episode_dict: a nested dictionary where key is an episode
+        number and values contain nodes and edges dictionary for the character
+        appearances and interactions in the individual episode
+    :type individual_episode_dict: dict
+    :param logger_object: a logging.Logger object
+    :type logger_object: logging.Logger object
+    :return: Cumulative episode dict
+    :rtype: dict
+    """
     cumulative_episode_dict = {}
     for e in individual_episode_dict:
         prev_e = e - 1
@@ -75,6 +123,23 @@ def generate_cumulative_episode_dict(individual_episode_dict, logger_object=None
 
 
 def update_cumulative_items_dict(item_type, previous_episode_dict, current_episode_dict):
+    """
+    checks if a node/edge has appeared in the previous episode of a cumulative
+    episode dict. If it has not, adds it with the current node/edge
+    attributes. If it has, adds attribute to the previous episode's attributes
+    to generate cumulative attribute for current episode
+    if it does appear
+    :param item_type: 'node' or 'edge'
+    :type item_type: st
+    :param previous_episode_dict: cumulative episode dict entry for previous
+        episode
+    :type previous_episode_dict: dict
+    :param current_episode_dict: individual episode dict entry for current
+        episode
+    :type current_episode_dict: dict
+    :return: Updated cumulative episode dict entry for current episode 
+    :rtype: dict
+    """
     assert item_type in ('node', 'edge')
     item_dict_key = f'{item_type}s_dict'
     attribute = 'size' if item_type == 'node' else 'weight'

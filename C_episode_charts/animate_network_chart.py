@@ -1,3 +1,9 @@
+"""
+This script creates an animation of multiple network charts for multiple
+episodes.
+
+It generates and saves a .mp4 file in the C_episode_charts/charts directory.
+"""
 import argparse
 import os
 import sys
@@ -18,14 +24,14 @@ if __name__ == '__main__':
         type=int,
         default=1,
         choices=range(1, 161),
-        help='First episode to include in the dict'
+        help='First episode to include in the animation'
     )
     parser.add_argument(
         '--end_episode', '-E',
         type=int,
         default=160,
         choices=range(1, 161),
-        help='Last episode to include in the dict'
+        help='Last episode to include in the animation'
     )
     parser.add_argument(
         '--logging_level', '-L',

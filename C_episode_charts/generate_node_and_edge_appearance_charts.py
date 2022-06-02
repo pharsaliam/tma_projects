@@ -13,6 +13,24 @@ from utils import open_dict_as_pkl
 
 
 def generate_heat_map(end_episode, appearance_dict, character_a, character_b=None):
+    """
+    Generates a heatmap using plotly.imshow() to show which episodes characters
+    appear or interact and the extent of that appearance/interaction
+    :param end_episode: Last episode to include in chart
+    :type end_episode: int
+    :param appearance_dict: Either a node or edge appearance dict where the key
+        is a node/edge and the values contain episode appearance/interaction
+        attributes
+    :type appearance_dict: dict
+    :param character_a: A character from The Magnus Archives
+    :type character_a: str
+    :param character_b: A second character from The Magnus Archives.
+        If provided, the chart will show the interactions between the two
+        characters. If not, the chart will show the appearances of character_a
+    :type character_b: str
+    :return: Figure with heatmap plot
+    :rtype: plotly.graph_objects.Figure
+    """
     max_season_number = int((end_episode - 1) / 40)
     df_dict = {
         season: [i for i in range((season*40)+1, (season*40)+41)] for season in range(max_season_number+1)
@@ -62,6 +80,24 @@ def generate_heat_map(end_episode, appearance_dict, character_a, character_b=Non
 
 
 def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=None):
+    """
+    Generates a barplot using plotly.bar() to show which episodes characters
+    appear or interact and the extent of that appearance/interaction
+    :param end_episode: Last episode to include in chart
+    :type end_episode: int
+    :param appearance_dict: Either a node or edge appearance dict where the key
+        is a node/edge and the values contain episode appearance/interaction
+        attributes
+    :type appearance_dict: dict
+    :param character_a: A character from The Magnus Archives
+    :type character_a: str
+    :param character_b: A second character from The Magnus Archives.
+        If provided, the chart will show the interactions between the two
+        characters. If not, the chart will show the appearances of character_a
+    :type character_b: str
+    :return: Figure with bar plot
+    :rtype: plotly.graph_objects.Figure
+    """
     key, attribute, title, label, attribute_format = retrieve_key_and_attribute(character_a, character_b)
     episode_appearances = appearance_dict[key]
     list_of_episodes = [k for k in range(1, end_episode+1)]
@@ -91,6 +127,23 @@ def generate_bar_chart(end_episode, appearance_dict, character_a, character_b=No
 
 
 def retrieve_key_and_attribute(character_a, character_b=None):
+    """
+    Returns keys and attributes depending on whether a second character is
+    provided (plotting edges) or not (plotting nodes)
+    :param character_a: A character from The Magnus Archives
+    :type character_a: str
+    :param character_b: A second character from The Magnus Archives.
+        If provided, the chart will show the interactions between the two
+        characters. If not, the chart will show the appearances of character_a
+    :type character_b: str
+    :return:
+        1. key for looking up item in node/edge appearance dict
+        2. appearance/interaction attribute name
+        3. title for chart
+        4. appearance/interaction attribute label
+        5. attribute number format (d3-format option)
+    :rtype: tuple or str, str, str, str, str
+    """
     if character_b:
         key = tuple(sorted([character_a, character_b]))
         attribute = 'weight'
@@ -107,6 +160,13 @@ def retrieve_key_and_attribute(character_a, character_b=None):
 
 
 def update_fig_layout(fig):
+    """
+    Update plotly.graph_objects.Figure layout
+    :param fig: plotly.graph_objects.Figure
+    :type fig: plotly.graph_objects.Figure
+    :return: None
+    :rtype: None
+    """
     fig.update_layout(font_family='Baskerville', font_size=20,
                       hoverlabel=dict(font_family='Baskerville', font_size=14))
     return None
