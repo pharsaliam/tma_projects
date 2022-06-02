@@ -8,7 +8,7 @@ from utils import create_logger
 
 CHARACTER_CONSOLIDATION_DICT = {
     '\nMAGNUS\n': '\nELIAS\n',
-    '\nJOHN\n': '\nARCHIVIST\n'
+    '\nJOHN\n': '\nARCHIVIST\n',
 }
 
 
@@ -36,6 +36,7 @@ class TMAEpisode:
         of their interaction attributes (currently just the "closeness" of
         interaction, labeled "weight" since it will be the weight of the edge)
     """
+
     def __init__(self, episode_number, logging_level='INFO'):
         """
         :param episode_number: Episode number
@@ -73,7 +74,11 @@ class TMAEpisode:
         tmarker2 = '[TAPE CLICKS'
         tmarker3 = 'End supplement'
         t_start_l = [html_text.find(tmarker1), html_text.find(tmarker2)]
-        t_end_l = [html_text.rfind(tmarker1), html_text.rfind(tmarker2), html_text.find(tmarker3)]
+        t_end_l = [
+            html_text.rfind(tmarker1),
+            html_text.rfind(tmarker2),
+            html_text.find(tmarker3),
+        ]
         t_start_l = [i for i in t_start_l if i > 0]
         t_end_l = [i for i in t_end_l if i > 0]
         t_start = min(t_start_l + [0])
@@ -108,11 +113,15 @@ class TMAEpisode:
         """
         for k, v in CHARACTER_CONSOLIDATION_DICT.items():
             self.transcript = self.transcript.replace(k, v)
-        scene_list = re.split(r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]', self.transcript)
+        scene_list = re.split(
+            r'\[TAPE CLICKS OFF.\][\n][\n][^\n][A-Za-z0-9 _.,!"\'\’\]]*|\[CLICK\]\n\n\[CLICK\]|\[TAPE CLICKS OFF\][\n][\n]\[TAPE CLICKS ON\]',
+            self.transcript,
+        )
         self.logger.debug(scene_list)
         for i, scene in enumerate(scene_list):
             self.character_info_in_scenes[i] = self.generate_character_info(
-                scene)
+                scene
+            )
         return None
 
     def generate_character_info(self, scene):
@@ -137,10 +146,12 @@ class TMAEpisode:
         appearances = []
         for i, line in enumerate(lines):
             self.logger.debug(f'On line {i}: {line}')
-            if re.match('^[A-Z!]*$',
-                        line):  # if it matches what looks like a character name
+            if re.match(
+                '^[A-Z!]*$', line
+            ):  # if it matches what looks like a character name
                 self.logger.debug(
-                    f'This is a character name. The current character is {current_character}')
+                    f'This is a character name. The current character is {current_character}'
+                )
                 if line == current_character:
                     self.logger.debug(f'This is the current character')
                     appearances.append(i)
@@ -148,35 +159,46 @@ class TMAEpisode:
                     pass
                 else:
                     self.logger.debug(
-                        f'Time to change characters from {current_character} to {line}')
+                        f'Time to change characters from {current_character} to {line}'
+                    )
                     # check to see if it already is in the word count dictionary
-                    if (current_character in character_info):
+                    if current_character in character_info:
                         self.logger.debug(
-                            f'{current_character} is alredy in the dict.')
+                            f'{current_character} is alredy in the dict.'
+                        )
                         character_info[current_character][
-                            'word_count'] += counter
-                        character_info[current_character][
-                            'appearances'].extend(appearances)
+                            'word_count'
+                        ] += counter
+                        character_info[current_character]['appearances'].extend(
+                            appearances
+                        )
                         self.logger.debug(f'Updated dict: {character_info}')
-                    elif current_character:  # Don't add the placeholder empty string
+                    elif (
+                        current_character
+                    ):  # Don't add the placeholder empty string
                         self.logger.debug(
-                            f'We need to add {current_character} to the dict')
+                            f'We need to add {current_character} to the dict'
+                        )
                         character_info[current_character][
-                            'word_count'] = counter
+                            'word_count'
+                        ] = counter
                         character_info[current_character][
-                            'appearances'] = appearances
+                            'appearances'
+                        ] = appearances
                         self.logger.debug(f'Updated dict: {character_info}')
                     current_character = line
                     counter = 0
                     appearances = [i]
-            elif re.match('\[[A-Za-z0-9 _.,!"\'\’]*\]',
-                          line):  # check if this is an action
+            elif re.match(
+                '\[[A-Za-z0-9 _.,!"\'\’]*\]', line
+            ):  # check if this is an action
                 self.logger.debug('This is an action sequence')
                 pass
             else:
                 counter += len(line.split())
             self.logger.debug(
-                f'This is a line of dialogue. Updated counter for {current_character}: {counter}')
+                f'This is a line of dialogue. Updated counter for {current_character}: {counter}'
+            )
         self.logger.debug(' ')
         return dict(character_info)
 
@@ -204,7 +226,9 @@ class TMAEpisode:
                 cs = tuple(sorted(characters_in_scene))
                 self.update_individual_dict('edge', cs, scene_i)
             elif len(characters_in_scene) > 2:
-                cs_combo = [i for i in itertools.combinations(characters_in_scene, 2)]
+                cs_combo = [
+                    i for i in itertools.combinations(characters_in_scene, 2)
+                ]
                 for p in cs_combo:
                     p = tuple(sorted(p))
                     self.update_individual_dict('edge', p, scene_i)
@@ -241,7 +265,14 @@ class TMAEpisode:
             item_dict[key][attribute] += update
         return None
 
-    def get_edge_closeness_in_scene(self, scene_i, character_1, character_2, min_lines=5, min_closeness=0.005):
+    def get_edge_closeness_in_scene(
+        self,
+        scene_i,
+        character_1,
+        character_2,
+        min_lines=5,
+        min_closeness=0.005,
+    ):
         """
         Calculates the closeness of a character pair in the scene
         The pair will start with a min_closeness score for just being in the
@@ -262,8 +293,12 @@ class TMAEpisode:
         :return: Closeness score
         :rtype: float
         """
-        list_1 = self.character_info_in_scenes[scene_i][character_1]['appearances']
-        list_2 = self.character_info_in_scenes[scene_i][character_2]['appearances']
+        list_1 = self.character_info_in_scenes[scene_i][character_1][
+            'appearances'
+        ]
+        list_2 = self.character_info_in_scenes[scene_i][character_2][
+            'appearances'
+        ]
         l_idx, r_idx, counter, curr_count = 0, 0, 0, 0
         for num in list_1:
             while l_idx < len(list_2) and num - list_2[l_idx] > min_lines:

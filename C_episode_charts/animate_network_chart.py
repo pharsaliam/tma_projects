@@ -20,24 +20,27 @@ from C_episode_charts.generate_network_charts import TMANetworkChart
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--start_episode', '-S',
+        '--start_episode',
+        '-S',
         type=int,
         default=1,
         choices=range(1, 161),
-        help='First episode to include in the animation'
+        help='First episode to include in the animation',
     )
     parser.add_argument(
-        '--end_episode', '-E',
+        '--end_episode',
+        '-E',
         type=int,
         default=160,
         choices=range(1, 161),
-        help='Last episode to include in the animation'
+        help='Last episode to include in the animation',
     )
     parser.add_argument(
-        '--logging_level', '-L',
+        '--logging_level',
+        '-L',
         type=str.upper,
         default='info',
-        help='Python logging level'
+        help='Python logging level',
     )
     args = parser.parse_args()
     if args.end_episode < args.start_episode:
@@ -48,8 +51,10 @@ if __name__ == '__main__':
     plt.rcParams['font.serif'] = ['Baskerville']
     fig, ax = chart.set_up_individual_plot()
     camera = Camera(fig)
-    for i in range(args.start_episode, args.end_episode+1):
-        chart.generate_network_chart('cumulative', i, ax, nodes_included, edges_included)
+    for i in range(args.start_episode, args.end_episode + 1):
+        chart.generate_network_chart(
+            'cumulative', i, ax, nodes_included, edges_included
+        )
         camera.snap()
     animation = camera.animate(interval=300)
     save_location = f'C_episode_charts/charts/tma_network_{args.start_episode}_to_{args.end_episode}.mp4'

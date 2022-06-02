@@ -2,7 +2,10 @@ import streamlit as st
 
 from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
 from C_episode_charts.generate_network_charts import TMANetworkChart
-from C_episode_charts.generate_node_and_edge_appearance_charts import generate_bar_chart, generate_heat_map
+from C_episode_charts.generate_node_and_edge_appearance_charts import (
+    generate_bar_chart,
+    generate_heat_map,
+)
 
 MAX_EPISODE = 160
 
@@ -13,9 +16,12 @@ def run():
         page_title='TMA Character Appearance and Interaction Visualizations',
         layout='wide',
     )
-    st.title('The Magnus Archives Character Appearance and Interaction '
-             'Visualizations (up to MAG160)')
-    st.markdown('''
+    st.title(
+        'The Magnus Archives Character Appearance and Interaction '
+        'Visualizations (up to MAG160)'
+    )
+    st.markdown(
+        '''
         [The Magnus Archives](https://rustyquill.com/show/the-magnus-archives/) 
         is a horror podcast created by Rusty Quill. One of the reasons why I 
         love this podcast is the way it builds out its cast of characters.
@@ -27,42 +33,51 @@ def run():
         proportional to the "closeness" of their interactions.
         
         See the FAQ section at the end for details. 
-    ''')
+    '''
+    )
     video_file = open('C_episode_charts/charts/tma_network_1_to_160.mp4', 'rb')
     video_bytes = video_file.read()
     st.video(video_bytes)
     st.subheader('View interactions episode by episode')
-    st.markdown('''
+    st.markdown(
+        '''
         On the left, you can view the character interactions for the
         individual episode. On the right are the cumulative interactions after
         the episode.  
-    ''')
+    '''
+    )
     # episode = st.slider('Select an episode:', 1, MAX_EPISODE)
     episode = st.number_input(
-        f'Select an episode (1 to {MAX_EPISODE})',
-        1,
-        MAX_EPISODE
+        f'Select an episode (1 to {MAX_EPISODE})', 1, MAX_EPISODE
     )
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
     chart = TMANetworkChart()
     network_fig, ax1, ax2 = chart.set_up_dual_plot()
-    chart.generate_network_chart('individual', episode, ax1,
-                                 nodes_included, edges_included)
-    chart.generate_network_chart('cumulative', episode, ax2,
-                                 nodes_included, edges_included)
+    chart.generate_network_chart(
+        'individual', episode, ax1, nodes_included, edges_included
+    )
+    chart.generate_network_chart(
+        'cumulative', episode, ax2, nodes_included, edges_included
+    )
     st.pyplot(fig=network_fig)
     st.subheader('View appearances/interactions for each character')
-    st.markdown('''
+    st.markdown(
+        '''
         Select a character to view their appearances over the course of the
         show. If you select a second character, you can view the interactions
         between the pair. 
-    ''')
+    '''
+    )
     col1, col2 = st.columns(2)
     with col1:
         character_a = st.selectbox('Select a character', nodes_included)
     with col2:
-        b_selections = [None] + [char for char in nodes_included if char != character_a]
-        character_b = st.selectbox('Select a second character (opt.)', b_selections)
+        b_selections = [None] + [
+            char for char in nodes_included if char != character_a
+        ]
+        character_b = st.selectbox(
+            'Select a second character (opt.)', b_selections
+        )
     chart_type = st.selectbox('Select a chart type', ['heatmap', 'bar'])
     if character_b:
         appearance_dict = open_dict_as_pkl('ea')
@@ -80,10 +95,12 @@ def run():
     )
     st.plotly_chart(appearance_figure)
     with st.expander('FAQ'):
-        st.markdown('''
+        st.markdown(
+            '''
             ##### Where did you get the data?
             
-            Transcript data was sourced from [here](https://snarp.github.io/magnus_archives_transcripts/).
+            Transcript data was sourced from 
+            [here](https://snarp.github.io/magnus_archives_transcripts/).
             
             ##### How is character "closeness" calculated?
             
@@ -100,7 +117,8 @@ def run():
             ##### Are you an avatar of the Web?
             
             No comment. 
-        ''')
+        '''
+        )
 
 
 if __name__ == '__main__':

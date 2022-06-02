@@ -8,7 +8,11 @@ import networkx as nx
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes, create_logger
+from utils import (
+    open_dict_as_pkl,
+    retrieve_included_edges_and_nodes,
+    create_logger,
+)
 
 FIXED_POSITIONS = {
     'MARTIN': [-0.50785913437188222, 0.08477362049934986],
@@ -28,7 +32,7 @@ FIXED_POSITIONS = {
     'GEORGIE': [0.6372042049249488, 0.6649350411778464],
     'PETER': [0.0587236938644669, 0.7914881431925871],
     'HELEN': [0.8316638715482926, -0.00243600699759311],
-    'TREVOR': [-1.0, -0.02557792368338694]
+    'TREVOR': [-1.0, -0.02557792368338694],
 }
 DPI = 150
 
@@ -44,6 +48,7 @@ class TMANetworkChart:
         episode dicts
     logger: a logging.Logger object
     """
+
     def __init__(self, directory='B_episode_dicts/dicts', logging_level='INFO'):
         """
         :param directory: Directory from which to retrieve the individual
@@ -53,11 +58,15 @@ class TMANetworkChart:
             (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         :type logging_level: str
         """
-        individual_episode_dict = open_dict_as_pkl('individual', directory=directory)
-        cumulative_episode_dict = open_dict_as_pkl('cumulative', directory=directory)
+        individual_episode_dict = open_dict_as_pkl(
+            'individual', directory=directory
+        )
+        cumulative_episode_dict = open_dict_as_pkl(
+            'cumulative', directory=directory
+        )
         self.episode_dict_dict = {
             'individual': individual_episode_dict,
-            'cumulative': cumulative_episode_dict
+            'cumulative': cumulative_episode_dict,
         }
         self.logger = create_logger('TMA_chart', logging_level=logging_level)
 
@@ -92,7 +101,15 @@ class TMANetworkChart:
         :return: matplotlib.figure.Figure object, matplotlib.axes.Axes array
         :rtype: matplotlib.figure.Figure object, matplotlib.axes.Axes array
         """
-        fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=figsize, dpi=dpi, facecolor='#0E1117')
+        fig, (ax1, ax2) = plt.subplots(
+            1,
+            2,
+            sharex=True,
+            sharey=True,
+            figsize=figsize,
+            dpi=dpi,
+            facecolor='#0E1117',
+        )
         for axi in [ax1, ax2]:
             axi.set_facecolor('black')
             axi.set_xlim([-1.2, 1.1])
@@ -100,7 +117,15 @@ class TMANetworkChart:
         fig.tight_layout(pad=0.75)
         return fig, ax1, ax2
 
-    def generate_network_chart(self, episode_dict_type, episode_number, ax, nodes_incl, edges_incl, save=False):
+    def generate_network_chart(
+        self,
+        episode_dict_type,
+        episode_number,
+        ax,
+        nodes_incl,
+        edges_incl,
+        save=False,
+    ):
         """
         Plots an individual or cumulative network chart for a particular
         episode
@@ -129,30 +154,45 @@ class TMANetworkChart:
         g.add_nodes_from(nodes)
         g.add_edges_from(edges)
         pos = FIXED_POSITIONS
-        font = {'color': 'white', 'fontsize': 18, 'family': 'serif',
-                'fontweight': 'bold'}
+        font = {
+            'color': 'white',
+            'fontsize': 18,
+            'family': 'serif',
+            'fontweight': 'bold',
+        }
         if episode_dict_type == 'cumulative':
             node_size = [s[1]['size'] / 40 for s in g.nodes.data()]
             edge_weights = [g[u][v]['weight'] / 100 for u, v in g.edges]
         else:
             node_size = [s[1]['size'] / 20 for s in g.nodes.data()]
             edge_weights = [g[u][v]['weight'] / 50 for u, v in g.edges]
-        nx.draw_networkx_nodes(g, pos, ax=ax, node_size=node_size,
-                                       node_color='#1a9340', edgecolors='#126840')
-        nx.draw_networkx_edges(g, pos, ax=ax, width=edge_weights,
-                                       alpha=0.5, edge_color='#23cf77')
-        nx.draw_networkx_labels(g, pos, ax=ax, font_color=font['color'],
-                                         font_family=font['family'])
+        nx.draw_networkx_nodes(
+            g,
+            pos,
+            ax=ax,
+            node_size=node_size,
+            node_color='#1a9340',
+            edgecolors='#126840',
+        )
+        nx.draw_networkx_edges(
+            g, pos, ax=ax, width=edge_weights, alpha=0.5, edge_color='#23cf77'
+        )
+        nx.draw_networkx_labels(
+            g, pos, ax=ax, font_color=font['color'], font_family=font['family']
+        )
         ax.text(
-            0.5, 0.97,
+            0.5,
+            0.97,
             f"MAG{episode_number:03} ({episode_dict_type.upper()})",
             ha='center',
             va='center',
             fontdict=font,
             transform=ax.transAxes,
-            bbox=dict(facecolor='#1a9340', alpha=0.5)
+            bbox=dict(facecolor='#1a9340', alpha=0.5),
         )
-        self.logger.info(f'Plotted {episode_dict_type} network chart for MAG{episode_number:03}')
+        self.logger.info(
+            f'Plotted {episode_dict_type} network chart for MAG{episode_number:03}'
+        )
         if save:
             save_location = f'MAG{episode_number:03}_{episode_dict_type}.png'
             plt.savefig(save_location, dpi=DPI)
@@ -164,22 +204,28 @@ if __name__ == '__main__':
     plt.rcParams['font.serif'] = ['Baskerville']
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--episode', '-E',
+        '--episode',
+        '-E',
         type=int,
         default=1,
         choices=range(1, 161),
-        help='Episode to plot'
+        help='Episode to plot',
     )
     parser.add_argument(
-        '--save_dir', '-D',
+        '--save_dir',
+        '-D',
         type=str,
         default='B_episode_dicts/dicts',
-        help='Directory where individual and cumulative dicts are saved'
+        help='Directory where individual and cumulative dicts are saved',
     )
     args = parser.parse_args()
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
     chart = TMANetworkChart(directory=args.save_dir)
     fig, ax1, ax2 = chart.set_up_dual_plot()
-    chart.generate_network_chart('individual', args.episode, ax1, nodes_included, edges_included)
-    chart.generate_network_chart('cumulative', args.episode, ax2, nodes_included, edges_included)
+    chart.generate_network_chart(
+        'individual', args.episode, ax1, nodes_included, edges_included
+    )
+    chart.generate_network_chart(
+        'cumulative', args.episode, ax2, nodes_included, edges_included
+    )
     plt.show()

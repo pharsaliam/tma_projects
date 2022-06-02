@@ -23,7 +23,7 @@ def create_logger(logger_name, logging_level='INFO'):
         handler = logging.StreamHandler()
         fmt = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%m/%d/%Y %I:%M:%S %p'
+            datefmt='%m/%d/%Y %I:%M:%S %p',
         )
         handler.setFormatter(fmt)
         logger.addHandler(handler)
@@ -50,7 +50,9 @@ def open_dict_as_pkl(dict_type, directory='B_episode_dicts/dicts'):
     return ed
 
 
-def save_dict_as_pkl(episode_dict, dict_type, directory='B_episode_dicts/dicts', logger=None):
+def save_dict_as_pkl(
+    episode_dict, dict_type, directory='B_episode_dicts/dicts', logger=None
+):
     """
     Saves a TMA dictionary as a .pkl file
     :param episode_dict: episode dict to save
@@ -78,7 +80,10 @@ def save_dict_as_pkl(episode_dict, dict_type, directory='B_episode_dicts/dicts',
     return None
 
 
-def retrieve_included_edges_and_nodes(directory='B_episode_dicts/dicts', minimum_episode_appearances=MIN_EPISODE_APPEARANCES):
+def retrieve_included_edges_and_nodes(
+    directory='B_episode_dicts/dicts',
+    minimum_episode_appearances=MIN_EPISODE_APPEARANCES,
+):
     """
     Retrieve a list of nodes that have hit a minimum episode appearance number
     and the edges relevant to that list of nodes
@@ -91,7 +96,14 @@ def retrieve_included_edges_and_nodes(directory='B_episode_dicts/dicts', minimum
     """
     node_appearance_dict = open_dict_as_pkl('na', directory=directory)
     edges_appearance_dict = open_dict_as_pkl('ea', directory=directory)
-    nodes_incl = [node for node, node_appearances in node_appearance_dict.items() if len(node_appearances) >= minimum_episode_appearances]
-    edges_incl = [edge for edge, edge_appearance in edges_appearance_dict.items() if
-                  (edge[0] in nodes_incl) & (edge[1] in nodes_incl)]
+    nodes_incl = [
+        node
+        for node, node_appearances in node_appearance_dict.items()
+        if len(node_appearances) >= minimum_episode_appearances
+    ]
+    edges_incl = [
+        edge
+        for edge, edge_appearance in edges_appearance_dict.items()
+        if (edge[0] in nodes_incl) & (edge[1] in nodes_incl)
+    ]
     return nodes_incl, edges_incl
