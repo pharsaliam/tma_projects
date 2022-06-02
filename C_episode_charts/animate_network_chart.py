@@ -39,6 +39,7 @@ if __name__ == '__main__':
     logger = create_logger('animator', logging_level=args.logging_level)
     nodes_included, edges_included = retrieve_included_edges_and_nodes()
     chart = TMANetworkChart()
+    plt.rcParams['font.serif'] = ['Baskerville']
     fig, ax = chart.set_up_individual_plot()
     camera = Camera(fig)
     for i in range(args.start_episode, args.end_episode+1):
