@@ -95,9 +95,11 @@ def run():
         character_a,
         character_b,
     )
-    st.markdown(f'''
+    st.markdown(
+        f'''
     Clicking on the episode {chart_entry} will open a link to its transcript.
-    ''')
+    '''
+    )
     st.components.v1.html(html, height=350, width=1350)
     with st.expander('FAQ'):
         st.markdown(

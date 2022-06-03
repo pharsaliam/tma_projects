@@ -56,7 +56,8 @@ def generate_heat_map(
         episode_grid_url[col] = [
             f'https://snarp.github.io/magnus_archives_transcripts/episode/'
             + f'{a:03}.html'
-            for a in episode_grid_url[col]]
+            for a in episode_grid_url[col]
+        ]
     key, attribute, title, label, attribute_format = retrieve_key_and_attribute(
         character_a, character_b
     )
@@ -97,14 +98,18 @@ def generate_heat_map(
         text=episode_grid_label.T,
         texttemplate="%{text}",
     )
-    fig.update(data=[{
-        'customdata': episode_grid_url.T,
-        'hovertemplate': 'MAG%{text:03}<br>'
-        + f'{label}'
-        + ': %{z:'
-        + f'{attribute_format}'
-        + '} <extra></extra>',
-    }])
+    fig.update(
+        data=[
+            {
+                'customdata': episode_grid_url.T,
+                'hovertemplate': 'MAG%{text:03}<br>'
+                + f'{label}'
+                + ': %{z:'
+                + f'{attribute_format}'
+                + '} <extra></extra>',
+            }
+        ]
+    )
     fig.for_each_trace(
         lambda t: t.update(
             textfont_color='white',
@@ -145,8 +150,10 @@ def generate_bar_chart(
     episode_appearances = appearance_dict[key]
     list_of_episodes = [k for k in range(1, end_episode + 1)]
     urls = [
-        f'https://snarp.github.io/magnus_archives_transcripts/episode/{a:03}.html'
-        for a in list_of_episodes]
+        f'https://snarp.github.io/magnus_archives_transcripts/episode/'
+        + f'{a:03}.html'
+        for a in list_of_episodes
+    ]
     df = pd.DataFrame(0, index=[label], columns=[list_of_episodes])
     for episode, appearance in episode_appearances.items():
         df.loc[label, episode] = appearance[attribute]
@@ -163,7 +170,7 @@ def generate_bar_chart(
         color_discrete_sequence=['#23cf77'],
         height=350,
         width=1350,
-        custom_data=['url']
+        custom_data=['url'],
     )
     update_fig_layout(fig)
     fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
@@ -211,7 +218,9 @@ def fig_to_html(fig):
             }}
         }})
         </script>
-        """.format(div_id=div_id)
+        """.format(
+        div_id=div_id
+    )
 
     # Build HTML string
     html_str = """
@@ -221,7 +230,9 @@ def fig_to_html(fig):
         {js_callback}
         </body>
         </html>
-        """.format(plot_div=plot_div, js_callback=js_callback)
+        """.format(
+        plot_div=plot_div, js_callback=js_callback
+    )
     return html_str
 
 
