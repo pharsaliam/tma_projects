@@ -21,8 +21,9 @@ def generate_heat_map(
     end_episode, appearance_dict, character_a, character_b=None
 ):
     """
-    Generates a heatmap using plotly.imshow() to show which episodes characters
-    appear or interact and the extent of that appearance/interaction
+    Generates a HTML string representing a heatmap using plotly.imshow() to
+    show which episodes characters appear or interact and the extent of that
+    appearance/interaction
     :param end_episode: Last episode to include in chart
     :type end_episode: int
     :param appearance_dict: Either a node or edge appearance dict where the key
@@ -35,8 +36,9 @@ def generate_heat_map(
         If provided, the chart will show the interactions between the two
         characters. If not, the chart will show the appearances of character_a
     :type character_b: str
-    :return: Figure with heatmap plot
-    :rtype: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        heatmap  plotted on it
+    :rtype: str
     """
     max_season_number = int((end_episode - 1) / 40)
     df_dict = {
@@ -119,7 +121,7 @@ def generate_bar_chart(
     end_episode, appearance_dict, character_a, character_b=None
 ):
     """
-    Generates a barplot using plotly.bar() to show which episodes characters
+    Generates a bar chart using plotly.bar() to show which episodes characters
     appear or interact and the extent of that appearance/interaction
     :param end_episode: Last episode to include in chart
     :type end_episode: int
@@ -133,8 +135,9 @@ def generate_bar_chart(
         If provided, the chart will show the interactions between the two
         characters. If not, the chart will show the appearances of character_a
     :type character_b: str
-    :return: Figure with bar plot
-    :rtype: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        bar chart plotted on it
+    :rtype: str
     """
     key, attribute, title, label, attribute_format = retrieve_key_and_attribute(
         character_a, character_b
@@ -177,6 +180,15 @@ def generate_bar_chart(
 
 
 def fig_to_html(fig):
+    """
+    Converts a figure to an HTML string with functionality that opens a url.
+    This assumes you have stored the url to open in the customdata of a figure
+    :param fig: a figure with data already plotted on it
+    :type fig: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        bar chart plotted on it
+    :rtype: str
+    """
     fig = go.Figure(data=fig.data, layout=fig.layout)
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
