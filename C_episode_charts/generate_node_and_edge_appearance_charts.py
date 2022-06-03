@@ -1,10 +1,15 @@
 import argparse
 import sys
 import os
+import re
+import webbrowser
+import tempfile
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.offline import plot
 
 p = os.path.abspath('.')
 sys.path.insert(1, p)
@@ -16,8 +21,9 @@ def generate_heat_map(
     end_episode, appearance_dict, character_a, character_b=None
 ):
     """
-    Generates a heatmap using plotly.imshow() to show which episodes characters
-    appear or interact and the extent of that appearance/interaction
+    Generates a HTML string representing a heatmap using plotly.imshow() to
+    show which episodes characters appear or interact and the extent of that
+    appearance/interaction
     :param end_episode: Last episode to include in chart
     :type end_episode: int
     :param appearance_dict: Either a node or edge appearance dict where the key
@@ -30,8 +36,9 @@ def generate_heat_map(
         If provided, the chart will show the interactions between the two
         characters. If not, the chart will show the appearances of character_a
     :type character_b: str
-    :return: Figure with heatmap plot
-    :rtype: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        heatmap  plotted on it
+    :rtype: str
     """
     max_season_number = int((end_episode - 1) / 40)
     df_dict = {
@@ -44,6 +51,13 @@ def generate_heat_map(
         index=range(episode_grid_label.shape[0]),
         columns=episode_grid_label.columns,
     )
+    episode_grid_url = episode_grid_label.copy()
+    for col in episode_grid_url.columns:
+        episode_grid_url[col] = [
+            f'https://snarp.github.io/magnus_archives_transcripts/episode/'
+            + f'{a:03}.html'
+            for a in episode_grid_url[col]
+        ]
     key, attribute, title, label, attribute_format = retrieve_key_and_attribute(
         character_a, character_b
     )
@@ -83,13 +97,19 @@ def generate_heat_map(
     fig.update_traces(
         text=episode_grid_label.T,
         texttemplate="%{text}",
-        hovertemplate='MAG%{text:03}<br>'
-        + f'{label}'
-        + ': %{z:'
-        + f'{attribute_format}'
-        + '} <extra></extra>',
     )
-    fig.update_layout(plot_bgcolor="#262730")
+    fig.update(
+        data=[
+            {
+                'customdata': episode_grid_url.T,
+                'hovertemplate': 'MAG%{text:03}<br>'
+                + f'{label}'
+                + ': %{z:'
+                + f'{attribute_format}'
+                + '} <extra></extra>',
+            }
+        ]
+    )
     fig.for_each_trace(
         lambda t: t.update(
             textfont_color='white',
@@ -97,14 +117,16 @@ def generate_heat_map(
             hoverlabel_bgcolor='black',
         )
     )
-    return fig
+    html_str = fig_to_html(fig)
+
+    return html_str
 
 
 def generate_bar_chart(
     end_episode, appearance_dict, character_a, character_b=None
 ):
     """
-    Generates a barplot using plotly.bar() to show which episodes characters
+    Generates a bar chart using plotly.bar() to show which episodes characters
     appear or interact and the extent of that appearance/interaction
     :param end_episode: Last episode to include in chart
     :type end_episode: int
@@ -118,18 +140,25 @@ def generate_bar_chart(
         If provided, the chart will show the interactions between the two
         characters. If not, the chart will show the appearances of character_a
     :type character_b: str
-    :return: Figure with bar plot
-    :rtype: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        bar chart plotted on it
+    :rtype: str
     """
     key, attribute, title, label, attribute_format = retrieve_key_and_attribute(
         character_a, character_b
     )
     episode_appearances = appearance_dict[key]
     list_of_episodes = [k for k in range(1, end_episode + 1)]
-    df = pd.DataFrame(0, index=[label], columns=list_of_episodes)
+    urls = [
+        f'https://snarp.github.io/magnus_archives_transcripts/episode/'
+        + f'{a:03}.html'
+        for a in list_of_episodes
+    ]
+    df = pd.DataFrame(0, index=[label], columns=[list_of_episodes])
     for episode, appearance in episode_appearances.items():
         df.loc[label, episode] = appearance[attribute]
     df = df.T
+    df['url'] = urls
     fig = px.bar(
         df,
         x=list_of_episodes,
@@ -139,11 +168,11 @@ def generate_bar_chart(
         ),
         title=title,
         color_discrete_sequence=['#23cf77'],
-        height=500,
-        width=1400,
+        height=350,
+        width=1350,
+        custom_data=['url'],
     )
     update_fig_layout(fig)
-    fig.update_layout(plot_bgcolor="#262730")  # TODO make this effective
     fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
     fig.update_traces(
         hovertemplate='MAG%{x:03}<br>'
@@ -152,7 +181,59 @@ def generate_bar_chart(
         + f'{attribute_format}'
         + '} <extra></extra>'
     )
-    return fig
+    html_str = fig_to_html(fig)
+
+    return html_str
+
+
+def fig_to_html(fig):
+    """
+    Converts a figure to an HTML string with functionality that opens a url.
+    This assumes you have stored the url to open in the customdata of a figure
+    :param fig: a figure with data already plotted on it
+    :type fig: plotly.graph_objects.Figure
+    :return: HTML string representing a plotly.graph_objects.Figure with the
+        bar chart plotted on it
+    :rtype: str
+    """
+    fig = go.Figure(data=fig.data, layout=fig.layout)
+    plot_div = plot(fig, output_type='div', include_plotlyjs=True)
+
+    # Get id of html div element that looks like
+    # <div id="301d22ab-bfba-4621-8f5d-dc4fd855bb33" ... >
+    res = re.search('<div id="([^"]*)"', plot_div)
+    div_id = res.groups()[0]
+
+    # Build JavaScript callback for handling clicks
+    # and opening the URL in the trace's customdata
+    js_callback = """
+        <script>
+        var plot_element = document.getElementById("{div_id}");
+        plot_element.on('plotly_click', function(data){{
+            console.log(data);
+            var point = data.points[0];
+            if (point) {{
+                console.log(point.customdata);
+                window.open(point.customdata);
+            }}
+        }})
+        </script>
+        """.format(
+        div_id=div_id
+    )
+
+    # Build HTML string
+    html_str = """
+        <html>
+        <body>
+        {plot_div}
+        {js_callback}
+        </body>
+        </html>
+        """.format(
+        plot_div=plot_div, js_callback=js_callback
+    )
+    return html_str
 
 
 def retrieve_key_and_attribute(character_a, character_b=None):
@@ -199,7 +280,10 @@ def update_fig_layout(fig):
     fig.update_layout(
         font_family='Baskerville',
         font_size=20,
+        font_color='white',
         hoverlabel=dict(font_family='Baskerville', font_size=14),
+        plot_bgcolor="#262730",
+        paper_bgcolor="#262730",
     )
     return None
 
@@ -250,10 +334,13 @@ if __name__ == '__main__':
         func = generate_bar_chart
     else:
         func = generate_heat_map
-    figure = func(
+    html = func(
         args.end_episode,
         ad,
         args.character_a,
         args.character_b,
     )
-    figure.show()
+    with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as f:
+        url = 'file://' + f.name
+        f.write(html)
+    webbrowser.open(url)
