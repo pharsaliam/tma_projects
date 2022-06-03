@@ -85,15 +85,20 @@ def run():
         appearance_dict = open_dict_as_pkl('na')
     if chart_type == 'bar':
         func = generate_bar_chart
+        chart_entry = 'bar'
     else:
         func = generate_heat_map
-    appearance_figure = func(
+        chart_entry = 'square'
+    html = func(
         MAX_EPISODE,
         appearance_dict,
         character_a,
         character_b,
     )
-    st.plotly_chart(appearance_figure)
+    st.markdown(f'''
+    Clicking on the episode {chart_entry} will open a link to its transcript.
+    ''')
+    st.components.v1.html(html, height=350, width=1350)
     with st.expander('FAQ'):
         st.markdown(
             '''
