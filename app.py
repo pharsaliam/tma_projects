@@ -72,17 +72,21 @@ def run():
     with col1:
         character_a = st.selectbox('Select a character', nodes_included)
     with col2:
-        b_selections = [None] + [
-            char for char in nodes_included if char != character_a
-        ]
+        b_selections = [None]
+        for edge in edges_included:
+            if character_a in edge:
+                if character_a == edge[0]:
+                    b_selections.append(edge[1])
+                else:
+                    b_selections.append(edge[0])
         character_b = st.selectbox(
             'Select a second character (opt.)', b_selections
         )
-    chart_type = st.selectbox('Select a chart type', ['heatmap', 'bar'])
     if character_b:
         appearance_dict = open_dict_as_pkl('ea')
     else:
         appearance_dict = open_dict_as_pkl('na')
+    chart_type = st.selectbox('Select a chart type', ['heatmap', 'bar'])
     if chart_type == 'bar':
         func = generate_bar_chart
         chart_entry = 'bar'
