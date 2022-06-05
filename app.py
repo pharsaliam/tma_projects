@@ -38,8 +38,10 @@ def run():
     )
     video_file = open('C_episode_charts/charts/tma_network_1_to_160.mp4', 'rb')
     video_bytes = video_file.read()
-    st.video(video_bytes)
-    st.subheader('View interactions episode by episode')
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.video(video_bytes)
+    st.subheader('View appearances/interactions episode by episode')
     st.markdown(
         '''
         On the left, you can view the character appearances and interactions 
