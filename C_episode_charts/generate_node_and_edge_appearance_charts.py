@@ -258,7 +258,7 @@ def retrieve_key_and_attribute(character_a, character_b=None):
         key = tuple(sorted([character_a, character_b]))
         attribute = 'weight'
         title = f'Interactions Between {character_a} and {character_b}'
-        label = 'Closeness Score'
+        label = 'Interaction Score'
         attribute_format = '.0f'
     else:
         key = character_a

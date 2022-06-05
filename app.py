@@ -27,26 +27,29 @@ def run():
         love this podcast is the way it builds out its cast of characters.
         The animation below is a network chart of cumulative character 
         appearances and interactions over the course of the podcast. 
+        Watching the video on full screen mode is recommended. 
         
         The size of the character node is proportional to the number of words
         spoken by them, while the width of the edges connecting characters is
         proportional to the "closeness" of their interactions.
         
-        See the FAQ section at the end for details. 
+        See the FAQ section at the end for further details. 
     '''
     )
     video_file = open('C_episode_charts/charts/tma_network_1_to_160.mp4', 'rb')
     video_bytes = video_file.read()
-    st.video(video_bytes)
-    st.subheader('View interactions episode by episode')
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.video(video_bytes)
+    st.subheader('View appearances/interactions episode by episode')
     st.markdown(
         '''
-        On the left, you can view the character interactions for the
-        individual episode. On the right are the cumulative interactions after
-        the episode.  
+        On the left, you can view the character appearances and interactions 
+        for the individual episode. On the right are the cumulative 
+        interactions after the episode ends (the same image that would be 
+        displayed in the video above.) 
     '''
     )
-    # episode = st.slider('Select an episode:', 1, MAX_EPISODE)
     episode = st.number_input(
         f'Select an episode (1 to {MAX_EPISODE})', 1, MAX_EPISODE
     )
@@ -113,16 +116,20 @@ def run():
             Transcript data was sourced from 
             [here](https://snarp.github.io/magnus_archives_transcripts/).
             
-            ##### How is character "closeness" calculated?
+            ##### How is character interaction "closeness" calculated?
             
             For interactions between characters, a pair's "closeness" score
             increased by 0.05 for each scene they appeared in together and by
             2 each time they spoke within 5 lines of each other in the scene.
-            (A scene is demarcated by the click of the tape recorder.)  
+            (A scene is demarcated by the click of the tape recorder.) This
+            methodology was inspired by C. Suen, L. Kuenzel, and S. Gil. 2011. 
+            *Extraction and analysis of character interaction networks from 
+            plays and movies.* Link 
+            [here](http://snap.stanford.edu/class/cs224w-2011/proj/laneyk_Finalwriteup_v1.pdf)
             
-            ##### Why does X character not appear?
+            ##### Why does character X not appear?
             
-            Only characters who had appeared in three or more episodes as of
+            Only characters who have appeared in three or more episodes as of
             MAG160 appear in the chart.  
             
             ##### Are you an avatar of the Web?
