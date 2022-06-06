@@ -308,5 +308,5 @@ class TMAEpisode:
                 r_idx += 1
                 curr_count += 1
             counter += curr_count
-        closeness = (counter * 2) + min_closeness
+        closeness = counter + min_closeness
         return closeness

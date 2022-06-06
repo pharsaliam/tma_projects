@@ -120,7 +120,7 @@ def run():
             
             For interactions between characters, a pair's "closeness" score
             increased by 0.05 for each scene they appeared in together and by
-            2 each time they spoke within 5 lines of each other in the scene.
+            1 each time they spoke within 5 lines of each other in the scene.
             (A scene is demarcated by the click of the tape recorder.) This
             methodology was inspired by C. Suen, L. Kuenzel, and S. Gil. 2011. 
             *Extraction and analysis of character interaction networks from 
