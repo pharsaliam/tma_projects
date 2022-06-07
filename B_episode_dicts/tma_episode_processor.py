@@ -4,12 +4,18 @@ import pickle
 import re
 from collections import defaultdict
 
-from utils import create_logger
+from utils import create_logger, load_config
 
-CHARACTER_CONSOLIDATION_DICT = {
+CONFIG = load_config()
+
+CHARACTER_CONSOLIDATION_DICT = CONFIG['CHARACTER_CONSOLIDATION_DICT']
+CHARACTER_CONSOLIDATION_DICT_2 = {
     '\nMAGNUS\n': '\nELIAS\n',
     '\nJOHN\n': '\nARCHIVIST\n',
 }
+LINES_NEEDED_FOR_CLOSENESS = CONFIG['LINES_NEEDED_FOR_CLOSENESS']
+MIN_CLOSENESS = CONFIG['MIN_CLOSENESS']
+TEXT_DIRECTORY = CONFIG['TEXT_DIRECTORY']
 
 
 class TMAEpisode:
@@ -67,7 +73,7 @@ class TMAEpisode:
         :return: None
         :rtype: None
         """
-        with open('A_episode_texts/texts/tma_text_from_epub.pkl', 'rb') as f:
+        with open(f'{TEXT_DIRECTORY}/tma_text_from_epub.pkl', 'rb') as f:
             all_episode_texts = pickle.load(f)
         html_text = all_episode_texts[self.number]
         tmarker1 = '[CLICK'
@@ -238,8 +244,8 @@ class TMAEpisode:
 
     def update_individual_dict(self, item_type, key, scene_i):
         """
-        Checks for a key in a node/edge dictionary. Adds it with current scene attributes
-         if it's not there. Updates its attributes if it is
+        Checks for a key in a node/edge dictionary. Adds it with current scene
+         attributes if it's not there. Updates its attributes if it is
         :param item_type: Either node or edge
         :type item_type: str
         :param key: Either a character name (for node) or tuple representing
@@ -270,8 +276,8 @@ class TMAEpisode:
         scene_i,
         character_1,
         character_2,
-        min_lines=5,
-        min_closeness=0.005,
+        lines_needed_for_interaction=LINES_NEEDED_FOR_CLOSENESS,
+        min_closeness=MIN_CLOSENESS,
     ):
         """
         Calculates the closeness of a character pair in the scene
@@ -285,9 +291,9 @@ class TMAEpisode:
         :type character_1: str
         :param character_2: Name of another character in the pair
         :type character_2: str
-        :param min_lines: Threshold line number separation for increasing
-            closeness score
-        :type min_lines: int
+        :param lines_needed_for_interaction: Threshold line number separation
+            for increasing closeness score
+        :type lines_needed_for_interaction: int
         :param min_closeness: Base closeness score for appearance in same scene
         :type min_closeness: float
         :return: Closeness score
@@ -301,10 +307,16 @@ class TMAEpisode:
         ]
         l_idx, r_idx, counter, curr_count = 0, 0, 0, 0
         for num in list_1:
-            while l_idx < len(list_2) and num - list_2[l_idx] > min_lines:
+            while (
+                l_idx < len(list_2)
+                and num - list_2[l_idx] > lines_needed_for_interaction
+            ):
                 l_idx += 1
                 curr_count -= 1
-            while r_idx < len(list_2) and list_2[r_idx] - num <= min_lines:
+            while (
+                r_idx < len(list_2)
+                and list_2[r_idx] - num <= lines_needed_for_interaction
+            ):
                 r_idx += 1
                 curr_count += 1
             counter += curr_count

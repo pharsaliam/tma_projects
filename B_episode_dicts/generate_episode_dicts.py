@@ -6,8 +6,13 @@ import os
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from utils import create_logger, save_dict_as_pkl
+from utils import create_logger, load_config
 from B_episode_dicts.tma_episode_processor import TMAEpisode
+from B_episode_dicts.save_and_load_dict import save_dict_as_pkl
+
+CONFIG = load_config()
+MAX_EPISODE = CONFIG['MAX_EPISODE']
+DICT_DIRECTORY = CONFIG['DICT_DIRECTORY']
 
 
 def generate_individual_episode_dict(
@@ -170,15 +175,15 @@ if __name__ == '__main__':
         '-S',
         type=int,
         default=1,
-        choices=range(1, 161),
+        choices=range(1, MAX_EPISODE + 1),
         help='First episode to include in the dict',
     )
     parser.add_argument(
         '--end_episode',
         '-E',
         type=int,
-        default=160,
-        choices=range(1, 161),
+        default=MAX_EPISODE,
+        choices=range(1, MAX_EPISODE + 1),
         help='Last episode to include in the dict',
     )
     parser.add_argument(
@@ -192,7 +197,7 @@ if __name__ == '__main__':
         '--save_dir',
         '-D',
         type=str,
-        default='B_episode_dicts/dicts',
+        default=DICT_DIRECTORY,
         help='Directory to which to save the episode dicts',
     )
     args = parser.parse_args()
@@ -206,7 +211,10 @@ if __name__ == '__main__':
         args.start_episode, args.end_episode, logger
     )
     logger.info(
-        'Finished generating individual episode dict, node appearance dict, and edge appearance dict'
+        '''
+        Finished generating individual episode dict, 
+        node appearance dict, and edge appearance dict
+        '''
     )
     logger.debug(f'Ending episode (i): {indi[args.end_episode]}')
     cumu = generate_cumulative_episode_dict(indi, logger)

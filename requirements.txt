@@ -8,4 +8,5 @@ networkx==2.7.1
 pandas==1.4.2
 plotly==5.7.0
 protobuf~=3.19.0
+pyYAML==6.0
 streamlit==1.9.0

@@ -14,8 +14,13 @@ import matplotlib.pyplot as plt
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from utils import retrieve_included_edges_and_nodes, create_logger
+from utils import create_logger, load_config
+from C_episode_charts.retrieve_en import retrieve_included_edges_and_nodes
 from C_episode_charts.generate_network_charts import TMANetworkChart
+
+CONFIG = load_config()
+MAX_EPISODE = CONFIG['MAX_EPISODE']
+CHART_DIRECTORY = CONFIG['CHART_DIRECTORY']
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -24,15 +29,15 @@ if __name__ == '__main__':
         '-S',
         type=int,
         default=1,
-        choices=range(1, 161),
+        choices=range(1, MAX_EPISODE + 1),
         help='First episode to include in the animation',
     )
     parser.add_argument(
         '--end_episode',
         '-E',
         type=int,
-        default=160,
-        choices=range(1, 161),
+        default=MAX_EPISODE,
+        choices=range(1, MAX_EPISODE + 1),
         help='Last episode to include in the animation',
     )
     parser.add_argument(
@@ -57,7 +62,7 @@ if __name__ == '__main__':
         )
         camera.snap()
     animation = camera.animate(interval=300)
-    save_location = f'C_episode_charts/charts/tma_network_{args.start_episode}_to_{args.end_episode}.mp4'
+    save_location = f'{CHART_DIRECTORY}/tma_network_{args.start_episode}_to_{args.end_episode}.mp4'
     animation.save(save_location)
     logger.info(f'Saved gif to {save_location}')
     plt.close('all')

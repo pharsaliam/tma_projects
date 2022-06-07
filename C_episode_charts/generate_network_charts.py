@@ -8,33 +8,15 @@ import networkx as nx
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from utils import (
-    open_dict_as_pkl,
-    retrieve_included_edges_and_nodes,
-    create_logger,
-)
+from utils import create_logger, load_config
+from B_episode_dicts.save_and_load_dict import open_dict_as_pkl
+from C_episode_charts.retrieve_en import retrieve_included_edges_and_nodes
 
-FIXED_POSITIONS = {
-    'MARTIN': [-0.50785913437188222, 0.08477362049934986],
-    'ELIAS': [0.494622046596421, -0.8496412076926273],
-    'ARCHIVIST': [0.39497082023195323, 0.08477362049934986],
-    'SASHA': [-0.9525321492929766, 0.3329317568689825],
-    'MELANIE': [0.8879192021330844, -0.35028543487470515],
-    'TIM': [-0.6407332236883497, 0.7039490847522484],
-    'BREEKON': [-0.6640046638082411, -0.8194784186915571],
-    'MICHAEL': [0.40920022617553936, 0.9530705335491978],
-    'BASIRA': [0.8374579409643357, 0.36115163173876225],
-    'GERTRUDE': [-0.3101090003330547, -0.9487132319098708],
-    'JULIA': [0.0648092656994219, -0.9586427617163064],
-    'HOPE': [-0.9386163812554091, -0.5262024764971592],
-    'NOT!SASHA': [-0.9986163812554091, -0.3262024764971592],
-    'DAISY': [-0.18843498813231419, 0.9943061532302655],
-    'GEORGIE': [0.6372042049249488, 0.6649350411778464],
-    'PETER': [0.0587236938644669, 0.7914881431925871],
-    'HELEN': [0.8316638715482926, -0.00243600699759311],
-    'TREVOR': [-1.0, -0.02557792368338694],
-}
-DPI = 150
+CONFIG = load_config()
+FIXED_POSITIONS = CONFIG['CHART_FIXED_POSITIONS']
+DPI = CONFIG['CHART_DPI']
+MAX_EPISODE = CONFIG['MAX_EPISODE']
+DICT_DIRECTORY = CONFIG['DICT_DIRECTORY']
 
 
 class TMANetworkChart:
@@ -49,7 +31,7 @@ class TMANetworkChart:
     logger: a logging.Logger object
     """
 
-    def __init__(self, directory='B_episode_dicts/dicts', logging_level='INFO'):
+    def __init__(self, directory=DICT_DIRECTORY, logging_level='INFO'):
         """
         :param directory: Directory from which to retrieve the individual
             and cumulative episode dicts
@@ -208,14 +190,14 @@ if __name__ == '__main__':
         '-E',
         type=int,
         default=1,
-        choices=range(1, 161),
+        choices=range(1, MAX_EPISODE + 1),
         help='Episode to plot',
     )
     parser.add_argument(
         '--save_dir',
         '-D',
         type=str,
-        default='B_episode_dicts/dicts',
+        default=DICT_DIRECTORY,
         help='Directory where individual and cumulative dicts are saved',
     )
     args = parser.parse_args()
