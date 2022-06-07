@@ -85,7 +85,7 @@ def generate_heat_map(
     fig = px.imshow(
         episode_grid_counter.T,
         height=350,
-        width=1300,
+        width=1350,
         color_continuous_scale=['white', 'black', '#23cf77'],
         color_continuous_midpoint=0,
         aspect='auto',
@@ -178,7 +178,7 @@ def generate_bar_chart(
         custom_data=['url'],
     )
     update_fig_layout(fig)
-    fig.update_yaxes(showgrid=False, gridwidth=0.05, gridcolor='LightGray')
+    fig.update_yaxes(showgrid=False, tickformat='.1s')
     fig.update_traces(
         hovertemplate='MAG%{x:03}<br>'
         + f'{label}'

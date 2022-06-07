@@ -1,4 +1,5 @@
 import logging
+
 import yaml
 
 MIN_EPISODE_APPEARANCES = 3
