@@ -15,6 +15,7 @@ from ebooklib import epub
 from bs4 import BeautifulSoup
 
 from utils import load_config
+
 CONFIG = load_config()
 TEXT_DIRECTORY = CONFIG['TEXT_DIRECTORY']
 

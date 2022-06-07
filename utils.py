@@ -33,6 +33,3 @@ def create_logger(logger_name, logging_level='INFO'):
         handler.setFormatter(fmt)
         logger.addHandler(handler)
     return logger
-
-
-

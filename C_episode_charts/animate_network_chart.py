@@ -29,7 +29,7 @@ if __name__ == '__main__':
         '-S',
         type=int,
         default=1,
-        choices=range(1, MAX_EPISODE+1),
+        choices=range(1, MAX_EPISODE + 1),
         help='First episode to include in the animation',
     )
     parser.add_argument(
@@ -37,7 +37,7 @@ if __name__ == '__main__':
         '-E',
         type=int,
         default=MAX_EPISODE,
-        choices=range(1, MAX_EPISODE+1),
+        choices=range(1, MAX_EPISODE + 1),
         help='Last episode to include in the animation',
     )
     parser.add_argument(

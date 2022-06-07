@@ -40,7 +40,9 @@ def run():
         See the FAQ section at the end for further details. 
     '''
     )
-    video_file = open(f'{CHART_DIRECTORY}/tma_network_1_to_{MAX_EPISODE}.mp4', 'rb')
+    video_file = open(
+        f'{CHART_DIRECTORY}/tma_network_1_to_{MAX_EPISODE}.mp4', 'rb'
+    )
     video_bytes = video_file.read()
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:

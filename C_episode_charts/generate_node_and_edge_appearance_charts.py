@@ -300,7 +300,7 @@ if __name__ == '__main__':
         '-E',
         type=int,
         default=MAX_EPISODE,
-        choices=range(1, MAX_EPISODE+1),
+        choices=range(1, MAX_EPISODE + 1),
         help='Last episode to include in the dict',
     )
     parser.add_argument(
@@ -327,9 +327,7 @@ if __name__ == '__main__':
         choices=['heatmap', 'bar'],
         default='bar',
     )
-    parser.add_argument(
-        '--save_dir', '-D', type=str, default=DICT_DIRECTORY
-    )
+    parser.add_argument('--save_dir', '-D', type=str, default=DICT_DIRECTORY)
     args = parser.parse_args()
     if args.character_b:
         ad = open_dict_as_pkl('ea', directory=args.save_dir)

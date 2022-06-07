@@ -211,7 +211,10 @@ if __name__ == '__main__':
         args.start_episode, args.end_episode, logger
     )
     logger.info(
-        'Finished generating individual episode dict, node appearance dict, and edge appearance dict'
+        '''
+        Finished generating individual episode dict, 
+        node appearance dict, and edge appearance dict
+        '''
     )
     logger.debug(f'Ending episode (i): {indi[args.end_episode]}')
     cumu = generate_cumulative_episode_dict(indi, logger)

@@ -244,8 +244,8 @@ class TMAEpisode:
 
     def update_individual_dict(self, item_type, key, scene_i):
         """
-        Checks for a key in a node/edge dictionary. Adds it with current scene attributes
-         if it's not there. Updates its attributes if it is
+        Checks for a key in a node/edge dictionary. Adds it with current scene
+         attributes if it's not there. Updates its attributes if it is
         :param item_type: Either node or edge
         :type item_type: str
         :param key: Either a character name (for node) or tuple representing
@@ -307,10 +307,16 @@ class TMAEpisode:
         ]
         l_idx, r_idx, counter, curr_count = 0, 0, 0, 0
         for num in list_1:
-            while l_idx < len(list_2) and num - list_2[l_idx] > lines_needed_for_interaction:
+            while (
+                l_idx < len(list_2)
+                and num - list_2[l_idx] > lines_needed_for_interaction
+            ):
                 l_idx += 1
                 curr_count -= 1
-            while r_idx < len(list_2) and list_2[r_idx] - num <= lines_needed_for_interaction:
+            while (
+                r_idx < len(list_2)
+                and list_2[r_idx] - num <= lines_needed_for_interaction
+            ):
                 r_idx += 1
                 curr_count += 1
             counter += curr_count
