@@ -12,6 +12,7 @@ from C_episode_charts.retrieve_en import retrieve_included_edges_and_nodes
 CONFIG = load_config()
 MAX_EPISODE = CONFIG['MAX_EPISODE']
 CHART_DIRECTORY = CONFIG['CHART_DIRECTORY']
+CHART_BY_CHARACTER_DIMENSIONS = CONFIG['CHART_BY_CHARACTER_DIMENSIONS']
 
 
 def run():
@@ -113,7 +114,10 @@ def run():
     Clicking on the episode {chart_entry} will open a link to its transcript.
     '''
     )
-    st.components.v1.html(html, height=350, width=1350)
+    st.components.v1.html(
+        html,
+        height=CHART_BY_CHARACTER_DIMENSIONS['HEIGHT'],
+        width=CHART_BY_CHARACTER_DIMENSIONS['WIDTH'])
     with st.expander('FAQ'):
         st.markdown(
             '''

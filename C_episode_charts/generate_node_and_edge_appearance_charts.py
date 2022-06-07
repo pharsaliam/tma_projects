@@ -20,6 +20,7 @@ from B_episode_dicts.save_and_load_dict import open_dict_as_pkl
 CONFIG = load_config()
 MAX_EPISODE = CONFIG['MAX_EPISODE']
 DICT_DIRECTORY = CONFIG['DICT_DIRECTORY']
+CHART_BY_CHARACTER_DIMENSIONS = CONFIG['CHART_BY_CHARACTER_DIMENSIONS']
 
 
 def generate_heat_map(
@@ -84,8 +85,8 @@ def generate_heat_map(
     y_labels = [i + 1 for i in episode_grid_counter.columns]
     fig = px.imshow(
         episode_grid_counter.T,
-        height=350,
-        width=1350,
+        height=CHART_BY_CHARACTER_DIMENSIONS['HEIGHT'],
+        width=CHART_BY_CHARACTER_DIMENSIONS['WIDTH'],
         color_continuous_scale=['white', 'black', '#23cf77'],
         color_continuous_midpoint=0,
         aspect='auto',
@@ -173,8 +174,8 @@ def generate_bar_chart(
         ),
         title=title,
         color_discrete_sequence=['#23cf77'],
-        height=350,
-        width=1350,
+        height=CHART_BY_CHARACTER_DIMENSIONS['HEIGHT'],
+        width=CHART_BY_CHARACTER_DIMENSIONS['WIDTH'],
         custom_data=['url'],
     )
     update_fig_layout(fig)
