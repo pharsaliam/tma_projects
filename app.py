@@ -1,13 +1,17 @@
 import streamlit as st
 
-from utils import open_dict_as_pkl, retrieve_included_edges_and_nodes
+from utils import load_config
+from B_episode_dicts.save_and_load_dict import open_dict_as_pkl
 from C_episode_charts.generate_network_charts import TMANetworkChart
 from C_episode_charts.generate_node_and_edge_appearance_charts import (
     generate_bar_chart,
     generate_heat_map,
 )
+from C_episode_charts.retrieve_en import retrieve_included_edges_and_nodes
 
-MAX_EPISODE = 160
+CONFIG = load_config()
+MAX_EPISODE = CONFIG['MAX_EPISODE']
+CHART_DIRECTORY = CONFIG['CHART_DIRECTORY']
 
 
 def run():
@@ -18,7 +22,7 @@ def run():
     )
     st.title(
         'The Magnus Archives Character Appearance and Interaction '
-        'Visualizations (up to MAG160)'
+        f'Visualizations (up to MAG{MAX_EPISODE})'
     )
     st.markdown(
         '''
@@ -36,7 +40,7 @@ def run():
         See the FAQ section at the end for further details. 
     '''
     )
-    video_file = open('C_episode_charts/charts/tma_network_1_to_160.mp4', 'rb')
+    video_file = open(f'{CHART_DIRECTORY}/tma_network_1_to_{MAX_EPISODE}.mp4', 'rb')
     video_bytes = video_file.read()
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:

@@ -14,7 +14,12 @@ from plotly.offline import plot
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from utils import open_dict_as_pkl
+from utils import load_config
+from B_episode_dicts.save_and_load_dict import open_dict_as_pkl
+
+CONFIG = load_config()
+MAX_EPISODE = CONFIG['MAX_EPISODE']
+DICT_DIRECTORY = CONFIG['DICT_DIRECTORY']
 
 
 def generate_heat_map(
@@ -294,8 +299,8 @@ if __name__ == '__main__':
         '--end_episode',
         '-E',
         type=int,
-        default=160,
-        choices=range(1, 161),
+        default=MAX_EPISODE,
+        choices=range(1, MAX_EPISODE+1),
         help='Last episode to include in the dict',
     )
     parser.add_argument(
@@ -323,7 +328,7 @@ if __name__ == '__main__':
         default='bar',
     )
     parser.add_argument(
-        '--save_dir', '-D', type=str, default='B_episode_dicts/dicts'
+        '--save_dir', '-D', type=str, default=DICT_DIRECTORY
     )
     args = parser.parse_args()
     if args.character_b:

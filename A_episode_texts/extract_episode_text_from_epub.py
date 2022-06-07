@@ -14,10 +14,12 @@ import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
 
+from utils import load_config
+CONFIG = load_config()
+TEXT_DIRECTORY = CONFIG['TEXT_DIRECTORY']
 
 if __name__ == '__main__':
-    episode_texts_dir = 'A_episode_texts/texts'
-    book = epub.read_epub(f'{episode_texts_dir}/the_magnus_archives.epub')
+    book = epub.read_epub(f'{TEXT_DIRECTORY}/the_magnus_archives.epub')
     chapters = [
         item.get_content()
         for item in book.get_items()
@@ -30,5 +32,5 @@ if __name__ == '__main__':
         if re.search('^(MAG)+\d\d\d -', text.strip()):
             episode_number = int(text.strip()[3:7])
             episode_text_dict[episode_number] = text.strip()
-    with open(f'{episode_texts_dir}/tma_text_from_epub.pkl', 'wb') as outfile:
+    with open(f'{TEXT_DIRECTORY}/tma_text_from_epub.pkl', 'wb') as outfile:
         pickle.dump(episode_text_dict, outfile)
